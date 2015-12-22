@@ -46,26 +46,28 @@ def findForKeys(template, source):
 	block for finding equal keys in dicts for forming 1 stage list
 	return tuple with respectiv foreign keys
 	"""
-	foreign_key1 = None
-	foreign_key2 = None
+	foreign_key1 = []
+	foreign_key2 = []
 	for k1 in template.keys():
 		for k2 in source.keys():
 			if k1.lower() == k2.lower():
-				foreign_key1 = k1
-				foreign_key2 = k2
-	if foreign_key1 is None:
-		print ('No perfect match in keys. Try to get partly match...')
+				foreign_key1.append(k1)
+				foreign_key2.append(k2)
+	if len(foreign_key1) == 0:
+		print ('\nNo perfect match in keys. Try to get partly match...')
 		for k1 in template.keys():
 			for k2 in source.keys():
 				if (k1.lower() in k2.lower()) or (k2.lower() in k1.lower()):
-					foreign_key1 = k1
-					foreign_key2 = k2
-	if foreign_key1 is None:
-		print ('No matches found. Key reference has to be manually handeled')
-	return (foreign_key1, foreign_key2)
+					foreign_key1.append(k1)
+					foreign_key2.append(k2)
+	if len(foreign_key1) == 0:
+		print ('\nNo matches found. Key reference has to be manually handeled')
+	else:
+		print ('\ntemplate key(s): {}\nsource key(s): {}\nfound as matching'.format(foreign_key1[0], foreign_key2[0]))
+	return (foreign_key1[0], foreign_key2[0])
 	
 			
-def findMatches(template, source):
+def findMatches(template, source, foreign_key1 = None, foreign_key2 = None):
 	"""
 	function takes
 		template (JSON object)
@@ -74,17 +76,20 @@ def findMatches(template, source):
 	returns a list
 	"""
 	result = []
-	foreign_key1, foreign_key2 = findForKeys(template, source[0])
-
+	if ((foreign_key1 is None) and (foreign_key2 is None)):
+		foreign_key1, foreign_key2 = findForKeys(template, source[0])
 	# simple iterative search
+	if ((foreign_key1 is None) and (foreign_key2 is not None)) or ((foreign_key1 is not None) and (foreign_key2 is None)):
+		print ('\nBoth foreign keys should be assigned.')
 	for s in source:
-		if template[foreign_key1] in s[foreign_key2]:
+		# match by manufacturer and model
+		if ((template[foreign_key1] in s[foreign_key2]) and (template['model'] in s['title'])):
 			result.append(s)	
 	return result
 	
 
 products = openObjects(path+products_file)
-#printObjects(products, 0, 1)
+printObjects(products, 0, 1)
 listing = openObjects(path+listing_file)
 #printObjects(listing, 4210, 4211)
 matches = findMatches(products[0], listing)
