@@ -41,6 +41,30 @@ def printObjects(products, start = None, finish = None):
 			v = (v.encode('cp1251', errors = 'ignore')).decode('utf-8', errors = 'ignore')
 			print ('{} {} {}'.format(k, ": ", v))
 
+def findForKeys(template, source):
+	"""
+	block for finding equal keys in dicts for forming 1 stage list
+	return tuple with respectiv foreign keys
+	"""
+	foreign_key1 = None
+	foreign_key2 = None
+	for k1 in template.keys():
+		for k2 in source.keys():
+			if k1.lower() == k2.lower():
+				foreign_key1 = k1
+				foreign_key2 = k2
+	if foreign_key1 is None:
+		print ('No perfect match in keys. Try to get partly match...')
+		for k1 in template.keys():
+			for k2 in source.keys():
+				if (k1.lower() in k2.lower()) or (k2.lower() in k1.lower()):
+					foreign_key1 = k1
+					foreign_key2 = k2
+	if foreign_key1 is None:
+		print ('No matches found. Key reference has to be manually handeled')
+	return (foreign_key1, foreign_key2)
+	
+			
 def findMatches(template, source):
 	"""
 	function takes
@@ -50,24 +74,13 @@ def findMatches(template, source):
 	returns a list
 	"""
 	result = []
-	
-	# block for finding equal keys in dicts for forming 1 stage list
-	foreign_key = None
-	for k1 in template.keys():
-		for k2 in source[0].keys():
-			if k1 == k2:
-				foreign_key = k1
-	if foreign_key is None:
-		print ('key reference has to be manually handeled')
-	foreign_key1 = foreign_key
-	foreign_key2 = foreign_key
-	
+	foreign_key1, foreign_key2 = findForKeys(template, source[0])
+
 	# simple iterative search
 	for s in source:
 		if template[foreign_key1] in s[foreign_key2]:
 			result.append(s)	
 	return result
-
 	
 
 products = openObjects(path+products_file)
