@@ -83,7 +83,7 @@ def findMatches(template, source, foreign_key1 = None, foreign_key2 = None):
 		print ('\nBoth foreign keys should be assigned.')
 	for s in source:
 		# match by manufacturer and model
-		if ((template[foreign_key1] in s[foreign_key2]) and (template['model'] in s['title'])):
+		if ((template[foreign_key1].lower() in s[foreign_key2].lower()) and (template['model'].lower() in s['title'].lower())):
 			result.append(s)	
 	return result
 	
