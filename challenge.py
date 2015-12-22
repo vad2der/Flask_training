@@ -1,7 +1,7 @@
 import json
 import io
 import codecs
-import sys
+
 
 """
 some solid variables
@@ -16,7 +16,7 @@ def openProducts(pathfile):
 	function to open file containing products
 	returns list of json objects (every consists of 4 dicts)
 	"""
-	rfile = io.open(pathfile, 'r', encoding = 'utf-8')
+	rfile = codecs.open(pathfile, mode = 'r', encoding = 'utf-8')
 	l = []
 	for f in rfile:
 		l.append(json.loads(f))
@@ -33,14 +33,14 @@ def printProducts(products, start = None, finish = None):
 	for ind in range(start, finish):
 		print (ind, "--------------")
 		for k, v in products[ind].items():
-			print (k, ": ", v)
+			print ('{} {} {}'.format(k, ": ", v))
 
 def openListing(pathfile):
 	"""
 	function to open file containing listing
 	returns list of json objects (every consists of dicts)
 	"""
-	rfile = io.open(pathfile, 'r', encoding = 'utf-8')
+	rfile = codecs.open(pathfile, mode = 'r', encoding = 'utf-8')
 	l = []
 	for f in rfile:
 		l.append(json.loads(f))
@@ -58,9 +58,10 @@ def printListing(listing, start = None, finish = None):
 	for ind in range(start, finish):		
 		print (ind, "++++++++")
 		for k, v in listing[ind].items():
-			print (k, ": ", v)
+			v = (v.encode('cp1251', errors = 'ignore')).decode('utf-8', errors = 'ignore')
+			print ('{} {} {}'.format(k, ": ", v))
 	
 products = openProducts(path+products_file)
-printProducts(products, 0, 3)
+#printProducts(products, 0, 3)
 listing = openListing(path+listing_file)
 printListing(listing, 4210, 4220)
