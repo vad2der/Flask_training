@@ -11,7 +11,7 @@ products_file = "products.txt"
 listing_file = "listings.txt"
 #sys.stdout = codecs.getwriter("iso-8859-1")(sys.stdout, 'xmlcharrefreplace')
 	
-def openProducts(pathfile):
+def openObjects(pathfile):
 	"""
 	function to open file containing products
 	returns list of json objects (every consists of 4 dicts)
@@ -41,17 +41,6 @@ def printObjects(products, start = None, finish = None):
 			v = (v.encode('cp1251', errors = 'ignore')).decode('utf-8', errors = 'ignore')
 			print ('{} {} {}'.format(k, ": ", v))
 
-def openListing(pathfile):
-	"""
-	function to open file containing listing
-	returns list of json objects (every consists of dicts)
-	"""
-	rfile = codecs.open(pathfile, mode = 'r', encoding = 'utf-8')
-	l = []
-	for f in rfile:
-		l.append(json.loads(f))
-	return l
-
 def findMatches(template, source):
 	"""
 	function takes
@@ -61,6 +50,8 @@ def findMatches(template, source):
 	returns a list
 	"""
 	result = []
+	
+	# block for finding equal keys in dicts for forming 1 stage list
 	foreign_key = None
 	for k1 in template.keys():
 		for k2 in source[0].keys():
@@ -70,6 +61,8 @@ def findMatches(template, source):
 		print ('key reference has to be manually handeled')
 	foreign_key1 = foreign_key
 	foreign_key2 = foreign_key
+	
+	# simple iterative search
 	for s in source:
 		if template[foreign_key1] in s[foreign_key2]:
 			result.append(s)	
@@ -77,9 +70,9 @@ def findMatches(template, source):
 
 	
 
-products = openProducts(path+products_file)
+products = openObjects(path+products_file)
 #printObjects(products, 0, 1)
-listing = openListing(path+listing_file)
+listing = openObjects(path+listing_file)
 #printObjects(listing, 4210, 4211)
 matches = findMatches(products[0], listing)
 printObjects(matches, 0, 5)
