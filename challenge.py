@@ -37,6 +37,8 @@ def printObjects(products, start = None, finish = None):
 		finish = len(products)
 	print ('\n')
 	print ('{} objects in list'.format(len(products)))
+	if len(products) < 1:
+		return
 	print ('See output for objects from {} to {} (not including):'.format(start, finish))
 	print ('\n')
 	for ind in range(start, finish):
@@ -68,41 +70,58 @@ def findForKeys(template, source):
 	if len(foreign_key1) == 0:
 		print ('\nNo matches found. Key reference has to be manually handeled')
 	else:
-		print ('\ntemplate key(s): {}\nsource key(s): {}\nfound as matching'.format(foreign_key1[0], foreign_key2[0]))
+		print ('\ntemplate key(s): {}\nsource key(s): {}\nfound as matching and set as foreign key'.format(foreign_key1[0], foreign_key2[0]))
 	return (foreign_key1[0], foreign_key2[0])
 	
-			
-def findMatches(template, source, foreign_key1 = None, foreign_key2 = None):
+def unknownFieldSearch(criteria, source, depth):
+	"""
+	recursive
+	"""
+	if (depth < 0):
+		print (criteria)
+		return source		
+	else:
+		new_source = []
+		for ind in range(0,len(criteria)):
+			for s in source:			
+				if ((criteria[ind] in s.values()) and (s not in new_source)):
+					new_source.append(s)			
+			if (len(new_source) > 0):
+				return unknownFieldSearch(criteria[ind:], (new_source), depth - 1)
+		return new_source
+	
+def findMatches(template, source, depth = None, foreign_key1 = None, foreign_key2 = None):
 	"""
 	function takes
 		template (JSON object)
 		source (list of JSON objects)
 	looks for matches of template in source
 	returns a list
-	"""	
+	"""
+	if (depth is None):
+		depth = 3
 	# getting step 1 criteria
 	if ((foreign_key1 is None) and (foreign_key2 is None)):
 		foreign_key1, foreign_key2 = findForKeys(template, source[0])
+	result1 = []
 	# if smthng goes wrong
 	if ((foreign_key1 is None) and (foreign_key2 is not None)) or ((foreign_key1 is not None) and (foreign_key2 is None)):
 		print ('\nBoth foreign keys should be assigned.')
+		result1 = source
 	# match by foreign key - step 1
-	result1 = []
-	for s in source:		
-		if (template[foreign_key1].lower() in s[foreign_key2].lower()):
-			result1.append(s)
+	else:
+		for s in source:		
+			if (template[foreign_key1].lower() in s[foreign_key2].lower()):
+				result1.append(s)
 	# match by having other records in - step 2
-	result2 = []	
-	for r in result1:
-		for k2, v2 in template.items():
-			if ((k2.lower() == foreign_key1) or ('price' in k2.lower()) or ('currency' in k2.lower())):
-				continue
-			for k1, v1 in r.items():
-				if (v2 in v1):
-					result2.append(r)		
+	result2 = []
+	# collect criteria list
+	criteria = []
+	for v in template.values():
+		criteria.append(v)
+	result2 = unknownFieldSearch(criteria, source, depth)	
 	return result2
 	
-
 products = openObjects(path+products_file)
 printObjects(products, 0, 1)
 listing = openObjects(path+listing_file)
