@@ -1,6 +1,7 @@
 import json
 import io
 import codecs
+import copy
 
 
 """
@@ -93,15 +94,20 @@ def unknownFieldSearch(criteria, source, depth):
 	"""
 	recursive
 	"""
-	if (len(criteria) < 1):
+	new_source = copy.deepcopy(source)
+	source = list(source)
+	if ((len(criteria) < 1) or (depth < 1)):
 		print (criteria)
 		return source	
-	else:
-		new_source = []
+	else:		
 		for s in source:
-			if ((criteria[0] not in s.values()) and (s not in new_source)):
-				new_source.append(s)
-	return unknownFieldSearch(criteria[1:], new_source, depth - 1)		
+			found = False
+			for v in s.values():	
+				if (criteria[0] in v):
+					found = True
+			if found is False:
+				new_source.remove(s)
+	return unknownFieldSearch(criteria[1:], new_source, depth - 1)
 	
 def findMatches(template, source, depth = None, foreign_key1 = None, foreign_key2 = None):
 	"""
@@ -135,11 +141,6 @@ def findMatches(template, source, depth = None, foreign_key1 = None, foreign_key
 	result2 = unknownFieldSearch(criteria, source, depth)	
 	return result2
 
-l1 = [1,2,3]
-l2=l1
-l2.remove(1)
-print (l1)
-print (l2)
 products = openObjects(path+products_file)
 printObjects(products, 0, 1)
 listing = openObjects(path+listing_file)
