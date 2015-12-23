@@ -73,22 +73,35 @@ def findForKeys(template, source):
 		print ('\ntemplate key(s): {}\nsource key(s): {}\nfound as matching and set as foreign key'.format(foreign_key1[0], foreign_key2[0]))
 	return (foreign_key1[0], foreign_key2[0])
 	
-def unknownFieldSearch(criteria, source, depth):
+def unknownFieldSearch1(criteria, source, depth):
 	"""
 	recursive
 	"""
-	if (depth < 0):
+	if (depth < 1):
 		print (criteria)
 		return source		
 	else:
 		new_source = []
 		for ind in range(0,len(criteria)):
-			for s in source:			
+			for s in source:
 				if ((criteria[ind] in s.values()) and (s not in new_source)):
-					new_source.append(s)			
-			if (len(new_source) > 0):
-				return unknownFieldSearch(criteria[ind:], (new_source), depth - 1)
-		return new_source
+					new_source.append(s)
+			new_criteria.remove(criteria[ind])
+		return unknownFieldSearch(new_criteria, new_source, depth - 1)
+
+def unknownFieldSearch(criteria, source, depth):
+	"""
+	recursive
+	"""
+	if (len(criteria) < 1):
+		print (criteria)
+		return source	
+	else:
+		new_source = []
+		for s in source:
+			if ((criteria[0] not in s.values()) and (s not in new_source)):
+				new_source.append(s)
+	return unknownFieldSearch(criteria[1:], new_source, depth - 1)		
 	
 def findMatches(template, source, depth = None, foreign_key1 = None, foreign_key2 = None):
 	"""
@@ -121,10 +134,15 @@ def findMatches(template, source, depth = None, foreign_key1 = None, foreign_key
 		criteria.append(v)
 	result2 = unknownFieldSearch(criteria, source, depth)	
 	return result2
-	
+
+l1 = [1,2,3]
+l2=l1
+l2.remove(1)
+print (l1)
+print (l2)
 products = openObjects(path+products_file)
 printObjects(products, 0, 1)
 listing = openObjects(path+listing_file)
 #printObjects(listing, 4210, 4211)
-matches = findMatches(products[0], listing)
+matches = findMatches(products[0], listing, depth = 3)
 printObjects(matches, 0, 5)
