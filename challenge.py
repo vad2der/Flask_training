@@ -90,24 +90,25 @@ def unknownFieldSearch1(criteria, source, depth):
 			new_criteria.remove(criteria[ind])
 		return unknownFieldSearch(new_criteria, new_source, depth - 1)
 
-def unknownFieldSearch(criteria, source, depth):
+def unknownFieldSearch(criteria, source, precision, result = None):
 	"""
 	recursive
 	"""
-	new_source = copy.deepcopy(source)
-	source = list(source)
-	if ((len(criteria) < 1) or (depth < 1)):
-		print (criteria)
-		return source	
+	if result is None:
+		result = []
+	if (len(source) < 1):		
+		return result
 	else:		
 		for s in source:
-			found = False
+			found = 0
 			for v in s.values():	
-				if (criteria[0] in v):
-					found = True
-			if found is False:
-				new_source.remove(s)
-	return unknownFieldSearch(criteria[1:], new_source, depth - 1)
+				for c in criteria:
+					if (c in v):
+						found += 1
+			if found > precision:				
+				result.append(s)
+			source.remove(s)							
+	return unknownFieldSearch(criteria, source, precision, result)
 	
 def findMatches(template, source, depth = None, foreign_key1 = None, foreign_key2 = None):
 	"""
@@ -145,5 +146,5 @@ products = openObjects(path+products_file)
 printObjects(products, 0, 1)
 listing = openObjects(path+listing_file)
 #printObjects(listing, 4210, 4211)
-matches = findMatches(products[0], listing, depth = 3)
+matches = findMatches(products[0], listing, 3)
 printObjects(matches, 0, 5)
