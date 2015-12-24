@@ -21,6 +21,7 @@ def openObjects(pathfile):
 	l = []
 	for f in rfile:
 		l.append(json.loads(f))
+	print ('\nApprehanded {} objects'.format(len(l)))
 	return l
 
 def printObjects(products, start = None, finish = None):	
@@ -72,54 +73,40 @@ def findForKeys(template, source):
 		print ('\nNo matches found. Key reference has to be manually handeled')
 	else:
 		print ('\ntemplate key(s): {}\nsource key(s): {}\nfound as matching and set as foreign key'.format(foreign_key1[0], foreign_key2[0]))
-	return (foreign_key1[0], foreign_key2[0])
-	
-def unknownFieldSearch1(criteria, source, depth):
-	"""
-	recursive
-	"""
-	if (depth < 1):
-		print (criteria)
-		return source		
-	else:
-		new_source = []
-		for ind in range(0,len(criteria)):
-			for s in source:
-				if ((criteria[ind] in s.values()) and (s not in new_source)):
-					new_source.append(s)
-			new_criteria.remove(criteria[ind])
-		return unknownFieldSearch(new_criteria, new_source, depth - 1)
+	return (foreign_key1[0], foreign_key2[0])	
 
 def unknownFieldSearch(criteria, source, precision, result = None):
 	"""
-	recursive
+	iterative
 	"""
 	if result is None:
 		result = []
 	if (len(source) < 1):		
 		return result
 	else:		
-		for s in source:
-			found = 0
-			for v in s.values():	
+		for s in source:			
+			for v in s.values():
+				found = 0
 				for c in criteria:
 					if (c in v):
 						found += 1
-			if found > precision:				
-				result.append(s)
-			source.remove(s)							
-	return unknownFieldSearch(criteria, source, precision, result)
+				if found >= precision:				
+					print (v)
+					result.append(s)				
+			source.remove(s)
+		return result
+			
 	
-def findMatches(template, source, depth = None, foreign_key1 = None, foreign_key2 = None):
+def findMatchesUnknownFields(template, source, precision = None, foreign_key1 = None, foreign_key2 = None):
 	"""
 	function takes
 		template (JSON object)
 		source (list of JSON objects)
-	looks for matches of template in source
+	looks for matches of template in sourcegit
 	returns a list
 	"""
-	if (depth is None):
-		depth = 3
+	if (precision is None):
+		precision = 3
 	# getting step 1 criteria
 	if ((foreign_key1 is None) and (foreign_key2 is None)):
 		foreign_key1, foreign_key2 = findForKeys(template, source[0])
@@ -139,12 +126,45 @@ def findMatches(template, source, depth = None, foreign_key1 = None, foreign_key
 	criteria = []
 	for v in template.values():
 		criteria.append(v)
-	result2 = unknownFieldSearch(criteria, source, depth)	
+	result2 = unknownFieldSearch(criteria, source, precision)	
 	return result2
-
+	
+def findMatchesKnownFields(template, source, field1, field2, foreign_key1 = None, foreign_key2 = None):
+	"""
+	function takes
+		template (JSON object)
+		source (list of JSON objects)
+	looks for matches of template in sourcegit
+	returns a list
+	"""
+	# getting step 1 criteria
+	if ((foreign_key1 is None) and (foreign_key2 is None)):
+		foreign_key1, foreign_key2 = findForKeys(template, source[0])
+	result1 = []
+	# if smthng goes wrong
+	if ((foreign_key1 is None) and (foreign_key2 is not None)) or ((foreign_key1 is not None) and (foreign_key2 is None)):
+		print ('\nBoth foreign keys should be assigned.')
+		result1 = source
+	# match by foreign key - step 1
+	else:
+		for s in source:		
+			if ((template[foreign_key1].lower() in s[foreign_key2].lower())):
+				if template[field1].lower() in s[field2].lower():
+					result1.append(s)
+	return result1
+	
+# get the list of products
 products = openObjects(path+products_file)
 printObjects(products, 0, 1)
+
+# get the list from listing
 listing = openObjects(path+listing_file)
 #printObjects(listing, 4210, 4211)
-matches = findMatches(products[0], listing, 3)
-printObjects(matches, 0, 5)
+
+# find matches if we know the name of crucial fields
+#matchesKnownFields = findMatchesKnownFields(products[0], listing, "model", "title")
+#printObjects(matchesKnownFields, 0, 5)
+
+# find matches if names of fields are unknown
+matchesUnknownFields = findMatchesUnknownFields(products[0], listing)
+printObjects(matchesUnknownFields, 0, 5)
