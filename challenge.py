@@ -6,9 +6,11 @@ import codecs
 """
 some solid variables
 """
-path = os.path.dirname(__file__) + '\\source_files\\'
+path = os.path.dirname(os.path.abspath(__file__)) + '\\source_files\\'
+print (path)
 products_file = "products.txt"
 listing_file = "listings.txt"
+foreign_key = ''
 
 
 def openObjects(pathfile):
@@ -16,7 +18,7 @@ def openObjects(pathfile):
     function to open file containing products
     returns list of json objects (every consists of 4 dicts)
     """
-    rfile = codecs.open(pathfile, mode = 'r', encoding = 'utf-8')
+    rfile = codecs.open(pathfile, mode='r', encoding='utf-8')
     l = []
     for f in rfile:
         l.append(json.loads(f))
@@ -52,6 +54,7 @@ def printObjects(products, start = None, finish = None):
 
 
 def findForKeys(template, source):
+    global foreign_key
     """
     block for finding equal keys in dicts for forming 1 stage list
     return tuple with respectiv foreign keys
@@ -73,11 +76,13 @@ def findForKeys(template, source):
     if len(foreign_key1) == 0:
         print ('\nNo matches found. Key reference has to be manually handeled')
     else:
-        print ('\ntemplate key(s): {}\nsource key(s): {}\nfound as matching and set as foreign key'.format(foreign_key1[0], foreign_key2[0]))
+        print ('\ntemplate key(s): {}\nsource key(s): {}\nfound as matching and set as foreign key'
+               .format(foreign_key1[0], foreign_key2[0]))
+    foreign_key = foreign_key1
     return (foreign_key1[0], foreign_key2[0])
 
 
-def findMatchesKnownFields(template, source, field1, field2=None, foreign_key1 = None, foreign_key2 = None):
+def findMatchesKnownFields(template, source, field1, foreign_key1 = None, foreign_key2 = None):
     """
     function takes
         template (JSON object)
@@ -109,7 +114,7 @@ def unknownFieldSearch(criteria, source, precision, template, result = None):
     """
     if result is None:
         result = []
-    if (len(source) < 1):
+    if len(source) < 1:
         return result
     proper_fields = {}
     for s in source:
@@ -117,9 +122,10 @@ def unknownFieldSearch(criteria, source, precision, template, result = None):
             found = 0
             for c in criteria:
                 c_lower = c.lower().replace('_', ' ')
-                if (c_lower in v.lower()):
+                if c_lower in v.lower():
                     found += 1
-                    if list(template.keys())[list(template.values()).index(c)] in template.keys():
+                    if list(template.keys())[list(template.values()).index(c)] in template.keys()\
+                            and str(list(template.keys())[list(template.values()).index(c)]) != foreign_key:
                         proper_fields[list(template.keys())[list(template.values()).index(c)]] = found
                         #print (list(template.keys())[list(template.values()).index(c)])
                 # full name split
@@ -168,9 +174,11 @@ def findMatchesUnknownFields(template, source, precision = None, foreign_key1 = 
     for v in template.values():
         criteria.append(v)
     result2, proper_fields = unknownFieldSearch(criteria, result1, precision, template)
-    field = [f for f in sorted(proper_fields, key=proper_fields.get, reverse = True)]
-    print ('fields by importance:\n')
+    field = [f for f in sorted(proper_fields, key=proper_fields.get, reverse=True)]
+    print ('\nfields by importance:')
     print (proper_fields)
+    print ('Selecting: {}'.format(field[0]))
+
     result3 = findMatchesKnownFields(template, source, field[0])
     return result3
 
@@ -203,8 +211,8 @@ listing = openObjects(path+listing_file)
 #printObjects(listing, 0, 100)
 
 # find matches if we know the name of crucial fields
-matchesKnownFields = findMatchesKnownFields(products[0], listing, "model")
-printObjects(matchesKnownFields, 0, 5)
+#matchesKnownFields = findMatchesKnownFields(products[0], listing, "model")
+#printObjects(matchesKnownFields, 0, 5)
 
 # find matches if names of fields are unknown
 matchesUnknownFields = findMatchesUnknownFields(products[0], listing, 3)
