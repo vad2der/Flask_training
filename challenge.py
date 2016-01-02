@@ -6,6 +6,7 @@ import json
 import os
 import codecs
 from multiprocessing.pool import ThreadPool
+import time
 
 
 """
@@ -23,11 +24,11 @@ def openObjects(pathfile):
     function to open file containing products
     returns list of json objects (every consists of 4 dicts)
     """
-    rfile = codecs.open(pathfile, mode='r', encoding='utf-8')
     l = []
-    for f in rfile:
-        l.append(json.loads(f))
-    print ('\nApprehanded {} objects'.format(len(l)))
+    with codecs.open(pathfile, mode='r', encoding='utf-8') as rfile:
+        for f in rfile:
+            l.append(json.loads(f))
+        print ('\nApprehanded {} objects'.format(len(l)))
     return l
 
 
@@ -188,7 +189,8 @@ def searchUnknownFields(template, source):
     output(return):
         list of selected objects
     """
-    proper_fields = getRelevantFields(template, source)
+    relevant_fileds_pool = ThreadPool(processes=1).apply_async(getRelevantFields, [template, source])
+    proper_fields = relevant_fileds_pool.get()
     # get list of matching fields sorted by values (number of matches)
     list_proper_fields = [f for f in sorted(proper_fields, key=proper_fields.get, reverse=True)]
     print ('Proper fields are: ' + str(list_proper_fields))
