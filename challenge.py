@@ -11,9 +11,11 @@ from multiprocessing.pool import ThreadPool
 """
 some solid variables
 """
-path = os.path.dirname(os.path.abspath(__file__)) + '\\source_files\\'
+path = os.path.dirname(os.path.abspath(__file__))
+source_path = path + '\\source_files\\'
 products_file = "products.txt"
 listing_file = "listings.txt"
+selection_file = "result.txt"
 
 
 def openObjects(pathfile):
@@ -55,6 +57,12 @@ def printObjects(products, start = None, finish=None):
             v = (v.encode('cp1251', errors='ignore')).decode('utf-8', errors='ignore')
             print ('{} {} {}'.format(k, ": ", v))
 
+
+def saveObjects(selection, name):
+    with open(name, 'w') as outfile:
+        for s in selection:
+            json.dump(s, outfile, ensure_ascii=False)
+            outfile.write('\n')
 
 def findForKeys(template, source):
     """
@@ -191,12 +199,12 @@ if __name__ == '__main__':
 
     pool_1 = ThreadPool(processes=1)
 
-    products_pool = pool_1.apply_async(openObjects, [path+products_file])
+    products_pool = pool_1.apply_async(openObjects, [source_path+products_file])
     # get the list of products
     products = products_pool.get()
     printObjects(products, 0, 1)
 
-    listing_pool = pool_1.apply_async(openObjects, [path+listing_file])
+    listing_pool = pool_1.apply_async(openObjects, [source_path+listing_file])
     # get the list from listing
     listing = listing_pool.get()
     #printObjects(listing, 0, 100)
@@ -214,4 +222,5 @@ if __name__ == '__main__':
 
     unknown_fields_matches_pool = pool_1.apply_async(searchUnknownFields, [template, listing])
     uf_matches = unknown_fields_matches_pool.get()
+    saveObjects(uf_matches, selection_file)
     printObjects(uf_matches, 0, 5)
