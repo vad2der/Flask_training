@@ -1,16 +1,19 @@
+"""
+Challenge task from Sortable
+by Vadim Deryabin (vad.deryabin@gmail.com, +1-587-718-0725 (Canada))
+"""
 import json
 import os
 import codecs
+from multiprocessing.pool import ThreadPool
 
 
 """
 some solid variables
 """
 path = os.path.dirname(os.path.abspath(__file__)) + '\\source_files\\'
-print (path)
 products_file = "products.txt"
 listing_file = "listings.txt"
-foreign_key = ''
 
 
 def openObjects(pathfile):
@@ -26,7 +29,7 @@ def openObjects(pathfile):
     return l
 
 
-def printObjects(products, start = None, finish = None):
+def printObjects(products, start = None, finish=None):
     """
     represents list of products in defined scopes
     """
@@ -48,16 +51,15 @@ def printObjects(products, start = None, finish = None):
     for ind in range(start, finish):
         print (ind, "--------------")
         for k, v in products[ind].items():
-            k = (k.encode('cp1251', errors = 'ignore')).decode('utf-8', errors = 'ignore')
-            v = (v.encode('cp1251', errors = 'ignore')).decode('utf-8', errors = 'ignore')
+            k = (k.encode('cp1251', errors='ignore')).decode('utf-8', errors='ignore')
+            v = (v.encode('cp1251', errors='ignore')).decode('utf-8', errors='ignore')
             print ('{} {} {}'.format(k, ": ", v))
 
 
 def findForKeys(template, source):
-    global foreign_key
     """
     block for finding equal keys in dicts for forming 1 stage list
-    return tuple with respectiv foreign keys
+    return tuple with respective foreign keys
     """
     foreign_key1 = []
     foreign_key2 = []
@@ -82,14 +84,24 @@ def findForKeys(template, source):
     return (foreign_key1[0], foreign_key2[0])
 
 
-def findMatchesKnownFields(template, source, field1, foreign_key1 = None, foreign_key2 = None):
+def findMatchesKnownFields(template, source, field, foreign_key1=None, foreign_key2=None):
     """
     function takes
         template (JSON object)
         source (list of JSON objects)
-    looks for matches of template in sourcegit
+        field (str or list of srtings) = crucial field or list of fields
+    function takes (optional):
+        foreign_key1 (str) = foreign key to join template
+        foreign_key2 (str) = foreign key to join source
+
+    looks for matches of template in source
+
     returns a list
     """
+    if type(field) is not list:
+        print (type(field))
+        field = [field]
+        print ('Converting field param to list')
     # getting step 1 criteria
     if (foreign_key1 is None) and (foreign_key2 is None):
         foreign_key1, foreign_key2 = findForKeys(template, source[0])
@@ -101,122 +113,105 @@ def findMatchesKnownFields(template, source, field1, foreign_key1 = None, foreig
         result1 = source
     # match by foreign key - step 1
     else:
+        refined_template1 = template[field[0]].lower().replace('_', ' ')
+        if len(field) > 1:
+            # designed for max 3 crucial fields. Can be unified by helper function, which may be recursive.
+            refined_template2 = template[field[1]].lower().replace('_', ' ')
+        else:
+            refined_template2 = refined_template1
+        if len(field) > 2:
+            refined_template3 = template[field[2]].lower().replace('_', ' ')
+        else:
+            refined_template3 = refined_template1
         for s in source:
-            if template[foreign_key1].lower() in s[foreign_key2].lower():
-                if template[field1].lower() in str(s.values()).lower():
-                    result1.append(s)
+            # matching by 1)foreign key, 2)not picked before, 3) in top matching field, 4) in one of rest fields
+            if template[foreign_key1].lower() in s[foreign_key2].lower() and \
+                            s not in result1 and \
+                            refined_template1 in str(s.values()).lower() and \
+                            refined_template2 in str(s.values()).lower() or \
+                            refined_template3 in str(s.values()).lower():
+                result1.append(s)
     return result1
 
 
-def unknownFieldSearch(criteria, source, precision, template, result = None):
+def getRelevantFields(template, source):
     """
-    iterative
+    :param template - example for the search
+    :param source - list of JSON objects to search in
+    :return - list of dict field names where matches occure with number of matches
     """
-    if result is None:
-        result = []
-    if len(source) < 1:
-        return result
     proper_fields = {}
-    for s in source:
-        for v in s.values():
-            found = 0
-            for c in criteria:
-                c_lower = c.lower().replace('_', ' ')
-                if c_lower in v.lower():
-                    found += 1
-                    if list(template.keys())[list(template.values()).index(c)] in template.keys()\
-                            and str(list(template.keys())[list(template.values()).index(c)]) != foreign_key:
-                        proper_fields[list(template.keys())[list(template.values()).index(c)]] = found
-                        #print (list(template.keys())[list(template.values()).index(c)])
-                # full name split
-                c_split = c_lower.split()
-                if len(c_split) > 1:
-                    cs_found = 0
-                    for cs in c_split:
-                        if cs in v.lower():
-                            cs_found += 1
-                    # more than half of words in full name found in a value field
-                    if (float(cs_found) / len(c_split)) > 0.6:
-                        found += 1
-            if found > precision:
-                result.append(s)
-    return result, proper_fields
-
-
-def findMatchesUnknownFields(template, source, precision = None, foreign_key1 = None, foreign_key2 = None):
-    """
-    function takes
-        template (JSON object)
-        source (list of JSON objects)
-    looks for matches of template in sourcegit
-    returns a list
-    """
-    if (precision is None):
-        precision = 2
-    # getting step 1 criteria
-    if ((foreign_key1 is None) and (foreign_key2 is None)):
-        foreign_key1, foreign_key2 = findForKeys(template, source[0])
-    result1 = []
-    # if smthng goes wrong
-    if ((foreign_key1 is None) and (foreign_key2 is not None)) \
-            or ((foreign_key1 is not None) and (foreign_key2 is None)):
-        print ('\nBoth foreign keys should be assigned.')
-        result1 = source
-    # match by foreign key - step 1
-    else:
-        for s in source:
-            if (template[foreign_key1].lower() in s[foreign_key2].lower()):
-                result1.append(s)
-    # match by having other records in - step 2
-    result2 = []
-    # collect criteria list
-    criteria = []
-    for v in template.values():
-        criteria.append(v)
-    result2, proper_fields = unknownFieldSearch(criteria, result1, precision, template)
-    field = [f for f in sorted(proper_fields, key=proper_fields.get, reverse=True)]
-    print ('\nfields by importance:')
-    print (proper_fields)
-    print ('Selecting: {}'.format(field[0]))
-
-    result3 = findMatchesKnownFields(template, source, field[0])
-    return result3
-
-
-def getListFromGoodExample(template, example, source, precision):
-    if len(example) < 2:
-        print ('At least 2 should be in example')
-        return source
-    ex = {}
-    fields = example[0].keys()
-    for k, v in example[1].items():
-        ex[k] = str(list(set(example[0][k].split()).intersection(set(v.split()))))
-    result = []
-    print (ex)
+    foreign_key1, foreign_key2 = findForKeys(template, source[0])
     for s in source:
         found = 0
-        for k,v in s.items():
-            if ex[k].lower() in v.lower():
-                found += 1
-        if found > precision:
-            result.append(s)
+        for v in s.values():
+            for criteria in template.values():
+                c_lower = criteria.lower().replace('_', ' ')
+                if c_lower in v.lower():
+                    if list(template.keys())[list(template.values()).index(criteria)] in template.keys()\
+                            and str(list(template.keys())[list(template.values()).index(criteria)]) != foreign_key1:
+                        found += 1
+                        proper_fields[list(template.keys())[list(template.values()).index(criteria)]] = found
+    print ('\nFields with matches are: {}'.format(proper_fields))
+    return proper_fields
+
+
+def sortDictTopResults(d):
+    """
+    input:
+        dictionary
+    output(return):
+        list of dictionary keys referring to max value(s)
+    """
+    result = []
+    max_score_value = [f for f in sorted(d, key=d.get, reverse=True)]
+    max_score = d[max_score_value[0]]
+    for k, v in d.items():
+        if v >= max_score:
+            result.append(k)
     return result
 
-# get the list of products
-products = openObjects(path+products_file)
-printObjects(products, 0, 1)
 
-# get the list from listing
-listing = openObjects(path+listing_file)
-#printObjects(listing, 0, 100)
+def searchUnknownFields(template, source):
+    """
+    input:
+        template - example to search
+        source - list of JSON objects to search in them
+    output(return):
+        list of selected objects
+    """
+    proper_fields = getRelevantFields(template, source)
+    # get list of matching fields sorted by values (number of matches)
+    list_proper_fields = [f for f in sorted(proper_fields, key=proper_fields.get, reverse=True)]
+    print ('Proper fields are: ' + str(list_proper_fields))
+    result = findMatchesKnownFields(template, source, list_proper_fields)
+    return result
 
-# find matches if we know the name of crucial fields
-#matchesKnownFields = findMatchesKnownFields(products[0], listing, "model")
-#printObjects(matchesKnownFields, 0, 5)
+if __name__ == '__main__':
 
-# find matches if names of fields are unknown
-matchesUnknownFields = findMatchesUnknownFields(products[0], listing, 3)
-printObjects(matchesUnknownFields, 0, 5)
+    pool_1 = ThreadPool(processes=1)
 
-#matchesWithExample = getListFromGoodExample(products[0], matchesUnknownFields, listing, 2)
-#printObjects(matchesWithExample, 0, 5)
+    products_pool = pool_1.apply_async(openObjects, [path+products_file])
+    # get the list of products
+    products = products_pool.get()
+    printObjects(products, 0, 1)
+
+    listing_pool = pool_1.apply_async(openObjects, [path+listing_file])
+    # get the list from listing
+    listing = listing_pool.get()
+    #printObjects(listing, 0, 100)
+
+    # selecting the template - search example
+    template = products[0]
+
+    """
+    # manual example
+    matches_pool = pool_1.apply_async(findMatchesKnownFields, [template, listing, 'model'])
+    # find matches if we know the name of crucial fields
+    matchesKnownFields = matches_pool.get()
+    printObjects(matchesKnownFields, 0, 5)
+    """
+
+    unknown_fields_matches_pool = pool_1.apply_async(searchUnknownFields, [template, listing])
+    uf_matches = unknown_fields_matches_pool.get()
+    printObjects(uf_matches, 0, 5)
