@@ -1,12 +1,14 @@
 """
 Challenge task from Sortable
-by Vadim Deryabin (vad.deryabin@gmail.com, +1-587-718-0725 (Canada))
+by Vadim Deryabin
+Language used: Python 3
+Approach: scoring matches
 """
+
 import json
 import os
 import codecs
 from multiprocessing.pool import ThreadPool
-import time
 
 
 """
@@ -212,7 +214,7 @@ if __name__ == '__main__':
     #printObjects(listing, 0, 100)
 
     # selecting the template - search example
-    template = products[0]
+    template = products[2]
 
     """
     # manual example
