@@ -21,9 +21,12 @@ def out(service, methods=['GET', 'POST']):
 def number(num):
 	return 'You have entered number{}'. format(str(num))
 
-@app.route('/map/mymap-01')
+@app.route('/map/<name>')
 def map(name):
-	return render_template('map_view.html', name=name)
+	if name == 'm':
+		return render_template('m.html', name=name)
+	else:
+		return render_template('map_view.html', name=name)
 	
 if __name__ == "__main__":
 	app.run(debug=True)
