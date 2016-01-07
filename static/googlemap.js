@@ -1,8 +1,4 @@
 
-//set of directions
-function initMapDir() {
-
-  // Specify features and elements to define styles.
   var styleArray = [
     {
       featureType: "all",
@@ -25,90 +21,65 @@ function initMapDir() {
     }
   ];
 
-  var markerArray = [];
+function initMap() {
 
-  // Instantiate a directions service.
-  var directionsService = new google.maps.DirectionsService;
+  // Specify features and elements to define styles.
 
-  // Create a map and center it on Manhattan.
+  
   var map = new google.maps.Map(document.getElementById('map'), {
-    scrollwheel: true,
-	styles: styleArray,
-	zoom: 13,
-    center: {lat: 56.846443, lng: 60.703685}
+    zoom: 10,
+    center: {lat: 56.842366, lng: 60.696127},
+	styles: styleArray
   });
 
-  // Create a renderer for directions and bind it to the map.
-  var directionsDisplay = new google.maps.DirectionsRenderer({map: map});
+  setMarkers(map);
+}
 
-  // Instantiate an info window to hold step text.
-  var stepDisplay = new google.maps.InfoWindow;
+// Data for the markers consisting of a name, a LatLng and a zIndex for the
+// order in which these markers should display on top of each other.
 
-  // Display the route between the initial start and end selections.
-  calculateAndDisplayRoute(
-      directionsDisplay, directionsService, markerArray, stepDisplay, map);
-  // Listen to change events from the start and end lists.
-  var onChangeHandler = function() {
-    calculateAndDisplayRoute(
-        directionsDisplay, directionsService, markerArray, stepDisplay, map);
+
+function setMarkers(map) {
+  // Adds markers to the map.
+
+  // Marker sizes are expressed as a Size of X,Y where the origin of the image
+  // (0,0) is located in the top left of the image.
+
+  // Origins, anchor positions and coordinates of the marker increase in the X
+  // direction to the right and in the Y direction down.
+  var image = {
+    url: 'images/beachflag.png',
+    // This marker is 20 pixels wide by 32 pixels high.
+    size: new google.maps.Size(20, 32),
+    // The origin for this image is (0, 0).
+    origin: new google.maps.Point(0, 0),
+    // The anchor for this image is the base of the flagpole at (0, 32).
+    anchor: new google.maps.Point(0, 32)
   };
-  document.getElementById('start').addEventListener('change', onChangeHandler);
-  document.getElementById('end').addEventListener('change', onChangeHandler);
-}
-
-function calculateAndDisplayRoute(directionsDisplay, directionsService,
-    markerArray, stepDisplay, map) {
-  // First, remove any existing markers from the map.
-  for (var i = 0; i < markerArray.length; i++) {
-    markerArray[i].setMap(null);
-  }
-
-  // Retrieve the start and end locations and create a DirectionsRequest using
-  // WALKING directions.
-  directionsService.route({
-    origin: document.getElementById('start').value,
-    destination: document.getElementById('end').value,
-    travelMode: google.maps.TravelMode.WALKING
-  }, function(response, status) {
-    // Route the directions and pass the response to a function to create
-    // markers for each step.
-    if (status === google.maps.DirectionsStatus.OK) {
-      document.getElementById('warnings-panel').innerHTML =
-          '<b>' + response.routes[0].warnings + '</b>';
-      directionsDisplay.setDirections(response);
-      showSteps(response, markerArray, stepDisplay, map);
-    } else {
-      window.alert('Directions request failed due to ' + status);
-    }
-  });
-}
-
-function showSteps(directionResult, markerArray, stepDisplay, map) {
-  // For each step, place a marker, and add the text to the marker's infowindow.
-  // Also attach the marker to an array so we can keep track of it and remove it
-  // when calculating new routes.
-  var myRoute = directionResult.routes[0].legs[0];
-  for (var i = 0; i < myRoute.steps.length; i++) {
-    var marker = markerArray[i] = markerArray[i] || new google.maps.Marker;
-    marker.setMap(map);
-    marker.setPosition(myRoute.steps[i].start_location);
-    attachInstructionText(
-        stepDisplay, marker, myRoute.steps[i].instructions, map);
+  // Shapes define the clickable region of the icon. The type defines an HTML
+  // <area> element 'poly' which traces out a polygon as a series of X,Y points.
+  // The final coordinate closes the poly by connecting to the first coordinate.
+  var shape = {
+    coords: [1, 1, 1, 20, 18, 20, 18, 1],
+    type: 'poly'
+  };
+  
+  //Getting list of JSON objects from field and parsing it.
+  var points = eval(document.getElementById("poi_list").innerHTML);
+  //document.getElementById("test").innerHTML = typeof(points[0].lat);
+  
+  
+  for (var i = 0; i < points.length; i++) {
+    var point = points[i];
+    var marker = new google.maps.Marker({
+      position: {lat: parseFloat(point.lat), lng: parseFloat(point.lng)},
+      map: map,
+      //icon: image,
+      //shape: shape,
+      title: String(point.poi_name),
+      //zIndex: String(point.type)
+    });
   }
 }
 
-function attachInstructionText(stepDisplay, marker, text, map) {
-  google.maps.event.addListener(marker, 'click', function() {
-    // Open an info window when the marker is clicked on, containing the text
-    // of the step.
-    stepDisplay.setContent(text);
-    stepDisplay.open(map, marker);
-  });
-}
-
-function getPoiList(){
-  var poi_list = document.getElementById("poi_list");
-  return poi_list;
-}
-
-google.maps.event.addDomListener(window, 'load', initMapDir);
+google.maps.event.addDomListener(window, 'load', initMap);

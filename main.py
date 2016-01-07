@@ -2,8 +2,8 @@
 training on Flask
 """
 
-from flask import Flask, request, render_template
-
+from flask import Flask, request, render_template, jsonify
+import json
 app = Flask(__name__)
 
 poi_list = [
@@ -11,6 +11,22 @@ poi_list = [
 {'poi_name': 'Shartash ozero', 'lat': 56.847335, 'lng': 60.692927, 'type': 'Natural', 'subtype': 'Waterbody'},
 {'poi_name': 'One more point', 'lat': 56.855640, 'lng': 60.759548,  'type': 'Natural', 'subtype': 'Rock'}]
 
+def toJSDictList(dict_list):
+	output = '['
+	for d_l in dict_list:
+		output += '{'		
+		for k, v in d_l.items():
+			if type(v) is not str:
+				output += k+': '+str(v)
+			else:
+				output += k+': '+'"'+str(v)+'"'
+			output +=', '
+		output = output[:-2]+'}, '
+	output = output[:-2]+']'
+	return output
+
+poi_json_list = toJSDictList(poi_list)
+	
 # index page
 @app.route('/')
 def index():
@@ -31,7 +47,7 @@ def map(name):
 	if name == 'todo':
 		return render_template('todo.html', name=name)
 	else:
-		return render_template('map_view.html', name=name, poi_list=poi_list)
+		return render_template('map_view.html', name=name, poi_list=poi_list, poi_json_list = poi_json_list)
 
 
 

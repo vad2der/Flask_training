@@ -7,33 +7,21 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}">
 </head>
 <body>
-	<h1>Map view - {{ name }}</h1>	
+	<h1>Map view - {{ name }}</h1>
+	{% if poi_list is not none %}
 		<table>
 		<tr><th>#</th><th>Name</th><th>longitude</th><th>Latitude</th><th>Type</th><th>SubType</th></tr>
 		{% set ind = 0 %}
 		{% for poi in poi_list %}
 		{% set ind = ind+1 %}
-		<tr>><td>{{ ind }}</td><td>{{ poi['poi_name'] }}</td><td>{{ poi['lng'] }}</td><td>{{ poi['lat'] }}</td><td>{{ poi['type'] }}</td><td>{{ poi['subtype'] }}</td></div></tr>
+		<tr>><td>{{ ind }}</td><td>{{ poi['poi_name'] }}</td><td>{{ poi['lng'] }}</td><td>{{ poi['lat'] }}</td><td>{{ poi['type'] }}</td><td>{{ poi['subtype'] }}</td></tr>
 		
 		{% endfor %}
 		</table>
-
-		<div id="poi_list"></div>
+	{% endif %}
+		<div id="poi_list" hidden>{{ poi_json_list}}</div>
+		<div id="test"></div>
 		<div id="map" style="width:700px;height:500px;"></div>
-
+		
 </body>
 </html>
-
-<!---
-		//<script>
-		//function getMarkers(){
-		//	var poi_list = {{poi_list}};
-		//	var marker_list = [];
-		//	for (var poi of poi_list){
-		//		marker_list.push({ poi_name:{{ poi[poi_name]}}, lng:{{ poi['lng']}}, lat: {{poi['lat']}} });
-		//	}
-		//	return marker_list;
-		//}
-		//document.getElementById("poi_list").innerHTML = getMarkers();
-		//</script>
-		--->
