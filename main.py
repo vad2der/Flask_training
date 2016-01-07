@@ -6,6 +6,11 @@ from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
+poi_list = [
+{'poi_name': 'Kamennie palatki', 'lat': 56.842912, 'lng': 60.678538, 'type': 'Natural', 'subtype': 'Rock'},
+{'poi_name': 'Shartash ozero', 'lat': 56.847335, 'lng': 60.692927, 'type': 'Natural', 'subtype': 'Waterbody'},
+{'poi_name': 'One more point', 'lat': 56.855640, 'lng': 60.759548,  'type': 'Natural', 'subtype': 'Rock'}]
+
 # index page
 @app.route('/')
 def index():
@@ -23,10 +28,12 @@ def number(num):
 
 @app.route('/map/<name>')
 def map(name):
-	if name == 'm':
-		return render_template('m.html', name=name)
+	if name == 'todo':
+		return render_template('todo.html', name=name)
 	else:
-		return render_template('map_view.html', name=name)
-	
+		return render_template('map_view.html', name=name, poi_list=poi_list)
+
+
+
 if __name__ == "__main__":
 	app.run(debug=True)
