@@ -20,19 +20,24 @@
       ]
     }
   ];
-
+var loc;  
+var points;
+var bounds = new google.maps.LatLngBounds();
+  
 function initMap() {
 
   // Specify features and elements to define styles.
-
+  //Getting list of JSON objects from field and parsing it.
+  points = eval(document.getElementById("poi_list").innerHTML);
+  //document.getElementById("test").innerHTML = typeof(points[0].lat);
   
   var map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 12,
-    center: {lat: 56.842366, lng: 60.696127},
 	styles: styleArray
   });
 
   setMarkers(map);
+  map.fitBounds(bounds);
+  map.panToBounds(bounds);
 }
 
 // Data for the markers consisting of a name, a LatLng and a zIndex for the
@@ -63,12 +68,7 @@ function setMarkers(map) {
     coords: [1, 1, 1, 20, 18, 20, 18, 1],
     type: 'poly'
   };
-  
-  //Getting list of JSON objects from field and parsing it.
-  var points = eval(document.getElementById("poi_list").innerHTML);
-  //document.getElementById("test").innerHTML = typeof(points[0].lat);
-  
-  
+
   for (var i = 0; i < points.length; i++) {
     var point = points[i];
     var marker = new google.maps.Marker({
@@ -79,6 +79,10 @@ function setMarkers(map) {
       title: String(point.poi_name),
       //zIndex: String(point.type)
     });
+  }
+  for (var p of points){
+  loc = new google.maps.LatLng(parseFloat(p.lat),parseFloat(p.lng));
+  bounds.extend(loc);
   }
 }
 
