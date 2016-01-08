@@ -15,7 +15,6 @@
 		{% for poi in poi_list %}
 		{% set ind = ind+1 %}
 		<tr>><td>{{ ind }}</td><td>{{ poi['poi_name'] }}</td><td>{{ poi['lng'] }}</td><td>{{ poi['lat'] }}</td><td>{{ poi['type'] }}</td><td>{{ poi['subtype'] }}</td></tr>
-		
 		{% endfor %}
 		</table>
 	{% endif %}
