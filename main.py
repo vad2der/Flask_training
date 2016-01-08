@@ -26,7 +26,7 @@ def toJSDictList(dict_list):
 	output = output[:-2]+']'
 	return output
 
-poi_json_list = toJSDictList(poi_list)
+p_list = toJSDictList(poi_list)
 	
 # index page
 @app.route('/')
@@ -48,7 +48,7 @@ def map(name):
 	if name == 'todo':
 		return render_template('todo.html', name=name)
 	else:
-		return render_template('map_view.html', name=name, poi_list=poi_list, poi_json_list=poi_json_list)
+		return render_template('map_view.html', name=name, poi_list=poi_list)
 
 
 
