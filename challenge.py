@@ -9,6 +9,7 @@ import json
 import os
 import codecs
 from multiprocessing.pool import ThreadPool
+from multiprocessing import Lock
 
 
 """
@@ -19,7 +20,8 @@ source_path = path + '\\source_files\\'
 products_file = "products.txt"
 listing_file = "listings.txt"
 selection_file = "result.txt"
-
+selection_file_manual = "result_manual.txt"
+foreign_key1, foreign_key2 = None, None
 
 def openObjects(pathfile):
     """
@@ -38,6 +40,8 @@ def printObjects(products, start = None, finish=None):
     """
     represents list of products in defined scopes
     """
+    if type(products) is not list:
+        products = [products]
     # if start point is not set
     if start is None:
         start = 0
@@ -61,17 +65,28 @@ def printObjects(products, start = None, finish=None):
             print ('{} {} {}'.format(k, ": ", v))
 
 
-def saveObjects(selection, name):
-    with open(name, 'w') as outfile:
-        for s in selection:
-            json.dump(s, outfile, ensure_ascii=False)
-            outfile.write('\n')
+def saveObjects(selection, product_name, name):
+    start = "{\n"
+    if os.stat(name).st_size > 0:
+        start = ",{\n"
+    with open(name, 'a') as outfile:
+        outfile.write(start)
+        outfile.write("product_name: "+product_name+"\n")
+        outfile.write("listing:\n")
+        if len(selection) > 0:
+            for s in selection:
+                json.dump(s, outfile, ensure_ascii=False)
+                outfile.write('\n')
+        outfile.write("}\n")
 
 def findForKeys(template, source):
     """
     block for finding equal keys in dicts for forming 1 stage list
     return tuple with respective foreign keys
     """
+    global foreign_key1, foreign_key2
+    if foreign_key1 is not None and foreign_key2 is not None:
+        return foreign_key1[0], foreign_key2[0]
     foreign_key1 = []
     foreign_key2 = []
     for k1 in template.keys():
@@ -95,7 +110,7 @@ def findForKeys(template, source):
     return (foreign_key1[0], foreign_key2[0])
 
 
-def findMatchesKnownFields(template, source, field, foreign_key1=None, foreign_key2=None):
+def findMatchesKnownFields(lock, template, source, field, foreign_key1=None, foreign_key2=None):
     """
     function takes
         template (JSON object)
@@ -109,6 +124,7 @@ def findMatchesKnownFields(template, source, field, foreign_key1=None, foreign_k
 
     returns a list
     """
+    lock.acquire()
     if type(field) is not list:
         print (type(field))
         field = [field]
@@ -124,14 +140,20 @@ def findMatchesKnownFields(template, source, field, foreign_key1=None, foreign_k
         result1 = source
     # match by foreign key - step 1
     else:
-        refined_template1 = template[field[0]].lower().replace('_', ' ')
+        try:
+            refined_template1 = template[field[0]].lower().replace('_', ' ')
+            refined_template1 = refined_template1.replace('-', ' ')
+        except:
+            return result1
         if len(field) > 1:
             # designed for max 3 crucial fields. Can be unified by helper function, which may be recursive.
             refined_template2 = template[field[1]].lower().replace('_', ' ')
+            refined_template2 = refined_template2.replace('-', ' ')
         else:
             refined_template2 = refined_template1
         if len(field) > 2:
             refined_template3 = template[field[2]].lower().replace('_', ' ')
+            refined_template3 = refined_template3.replace('-', ' ')
         else:
             refined_template3 = refined_template1
         for s in source:
@@ -142,7 +164,10 @@ def findMatchesKnownFields(template, source, field, foreign_key1=None, foreign_k
                             refined_template2 in str(s.values()).lower() or \
                             refined_template3 in str(s.values()).lower():
                 result1.append(s)
-    return result1
+    try:
+        return result1
+    finally:
+        lock.release()
 
 
 def getRelevantFields(template, source):
@@ -183,7 +208,7 @@ def sortDictTopResults(d):
     return result
 
 
-def searchUnknownFields(template, source):
+def searchUnknownFields(lock, template, source):
     """
     input:
         template - example to search
@@ -191,22 +216,26 @@ def searchUnknownFields(template, source):
     output(return):
         list of selected objects
     """
-    relevant_fileds_pool = ThreadPool(processes=1).apply_async(getRelevantFields, [template, source])
-    proper_fields = relevant_fileds_pool.get()
+    lock_local = Lock()
+    lock_local.acquire()
+    proper_fields = getRelevantFields(template, source)
     # get list of matching fields sorted by values (number of matches)
     list_proper_fields = [f for f in sorted(proper_fields, key=proper_fields.get, reverse=True)]
     print ('Proper fields are: ' + str(list_proper_fields))
-    result = findMatchesKnownFields(template, source, list_proper_fields)
-    return result
+    result = findMatchesKnownFields(lock, template, source, list_proper_fields)
+    try:
+        return result
+    finally:
+        lock_local.release()
 
-if __name__ == '__main__':
 
+def main():
     pool_1 = ThreadPool(processes=1)
 
     products_pool = pool_1.apply_async(openObjects, [source_path+products_file])
     # get the list of products
     products = products_pool.get()
-    printObjects(products, 0, 1)
+    printObjects(products, 6, 7)
 
     listing_pool = pool_1.apply_async(openObjects, [source_path+listing_file])
     # get the list from listing
@@ -214,17 +243,30 @@ if __name__ == '__main__':
     #printObjects(listing, 0, 100)
 
     # selecting the template - search example
-    template = products[2]
 
+    lock = Lock()
     """
-    # manual example
-    matches_pool = pool_1.apply_async(findMatchesKnownFields, [template, listing, 'model'])
-    # find matches if we know the name of crucial fields
-    matchesKnownFields = matches_pool.get()
-    printObjects(matchesKnownFields, 0, 5)
+    # manual example if names of crucial fields are known. eg 'model'
+    for product in products:
+        matches_pool = pool_1.apply_async(findMatchesKnownFields, [lock, product, listing, 'model'])
+        # find matches if we know the name of crucial fields
+        matchesKnownFields = matches_pool.get()
+        saveObjects(matchesKnownFields, product['product_name'], selection_file_manual)
+        #printObjects(matchesKnownFields, 0, 5)
     """
+    #se = searchUnknownFields(lock, products[6], listing)
+    #printObjects(se)
 
-    unknown_fields_matches_pool = pool_1.apply_async(searchUnknownFields, [template, listing])
-    uf_matches = unknown_fields_matches_pool.get()
-    saveObjects(uf_matches, selection_file)
-    printObjects(uf_matches, 0, 5)
+    for product in products:
+        printObjects(product)
+        unknown_fields_matches_pool = pool_1.apply_async(searchUnknownFields, [lock, product, listing])
+        uf_matches = unknown_fields_matches_pool.get()
+        saveObjects(uf_matches, product['product_name'], selection_file)
+        #printObjects(uf_matches, 0, 5)
+
+    pool_1.close()
+    pool_1.join()
+
+
+if __name__ == '__main__':
+    main()
