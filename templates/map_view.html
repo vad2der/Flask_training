@@ -8,6 +8,22 @@
 </head>
 <body>
   <h1>Map view - {{ name }}</h1>
+  
+  <div id="poi_collection_choise" hidden>{{ poi_collection_list}}</div>
+  
+  <form method="GET">
+  <select name="poi_collection_choise" onchange="selected=this.value">
+  {% if poi_collection_list %}
+    {% for poi_collection in poi_collection_list %}
+	<option value={{poi_collection}}>{{poi_collection}}</option>
+	{% endfor %}
+  {% endif %}
+  </select>
+  </form>
+  
+  <div id="poi_list" hidden>{{ poi_list}}</div>
+  <div>{{ poi_list}}</div>
+  
   <table>
     {% if poi_list %}
 	  <tr><th>#</th><th>Name</th><th>longitude</th><th>Latitude</th><th>Type</th><th>SubType</th></tr>
@@ -18,7 +34,7 @@
 	  {% endfor %}
 	{% endif %}
   </table>
-  <div id="poi_list" hidden>{{ poi_list}}</div>
+  
   <div id="test"></div>
   <div id="map" style="width:700px;height:500px;"></div>		
 </body>
