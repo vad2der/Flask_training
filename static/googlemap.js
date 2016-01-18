@@ -29,17 +29,46 @@ function initMap() {
   // Specify features and elements to define styles.
   //Getting list of JSON objects from field and parsing it.
   points = eval(document.getElementById("poi_list").innerHTML);
-  //document.getElementById("test").innerHTML = typeof(points[0].lat);
-  
+  document.getElementById("test").innerHTML = typeof(points) + ' Collection obtained';
   var map = new google.maps.Map(document.getElementById('map'), {
-	styles: styleArray
-  });
-
-  setMarkers(map);
-  map.fitBounds(bounds);
-  map.panToBounds(bounds);
+	  styles: styleArray,
+	  zoom: 6
+    });
+  if (typeof(points) != 'object'){
+    // Try HTML5 geolocation.
+	var infoWindow = new google.maps.InfoWindow({map: map});
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+      document.getElementById("test").innerHTML = pos.lat +' '+ pos.lng;
+      infoWindow.setPosition(pos);
+      infoWindow.setContent('Current location shown. No collection selected to present.');
+      map.setCenter(pos);
+    }, function() {
+	  handleLocationError(true, infoWindow, map.getCenter());
+    });
+  } 
+    else {
+    // Browser doesn't support Geolocation
+      handleLocationError(false, infoWindow, map.getCenter());
+    }
+  }
+  else{
+    setMarkers(map);
+    map.fitBounds(bounds);
+    map.panToBounds(bounds);
+  }
 }
 
+function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+  infoWindow.setPosition(pos);
+  infoWindow.setContent(browserHasGeolocation ?
+                        'Error: The Geolocation service failed.' :
+                        'Error: Your browser doesn\'t support geolocation.');
+}
 // Data for the markers consisting of a name, a LatLng and a zIndex for the
 // order in which these markers should display on top of each other.
 

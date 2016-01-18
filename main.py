@@ -47,7 +47,7 @@ class CTP:
             return self.poi_list_3
 
     def randomPOIlist(self):
-        collection_list = [self.poi_list_1, self.poi_list_2, self.poi_list_3, 'current_location']
+        collection_list = [self.poi_list_1, self.poi_list_2, self.poi_list_3, '', '', '', '']
         return random.choice(collection_list)
 
 ctp = CTP()
@@ -71,6 +71,12 @@ def getPoiList():
     attempt_poi_collection = request.form.post['poi_collection_choise']
     return ctp.getPOIlist(poi_collection)	
 
+# stage01
+@app.route('/stage01')
+def stage01():
+    poi_list = ctp.randomPOIlist()
+    return render_template('stage01.html', name='stage01', poi_list=poi_list)
+
 # map page
 @app.route('/map/<name>', methods=['GET', 'POST'])
 def map(name):
@@ -81,12 +87,6 @@ def map(name):
         return render_template('map_view.html', name=name, poi_collection_list=ctp.poi_collection_list, poi_list=poi_list)
     except Exception as e:
         return render_template('map_view.html', name=name, poi_collection_list=ctp.poi_collection_list)
-		
-# stage01
-@app.route('/stage01')
-def stage01():
-    poi_list = ctp.randomPOIlist()
-    return render_template('map_view.html', name='stage01', poi_list=poi_list)
-		
+
 if __name__ == "__main__":
 	app.run(debug=True)	

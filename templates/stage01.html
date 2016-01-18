@@ -9,8 +9,9 @@
 <body>
   <h1>Map view - {{ name }}</h1>
   
-  <div id="poi_list" hidden>{{ poi_list}}</div>
-  
+  <div id="poi_list" hidden>{{ poi_list }}</div>
+  <p>3 POI collections presented for experiments.
+  This page gets random of tham list + viewer`s current location (if no collection randomly chosen).</p>
   <table>
     {% if poi_list %}
 	  <tr><th>#</th><th>Name</th><th>longitude</th><th>Latitude</th><th>Type</th><th>SubType</th></tr>
