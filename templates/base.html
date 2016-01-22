@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<title>Map view page</title>
+<head>
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='googlemap.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"></link>
+</head>
+<body>
+  <h1>Map view - {{ name }}</h1>
+  
+  <!-- collections -->
+  {% block collection %}
+  {% endblock collection %}
+ 
+  <!-- pois -->
+  <div id="poi_list" hidden>{{ poi_list}}</div>
+  <div>{{ poi_list}}</div>
+  
+  <table>
+    {% if poi_list %}
+	  <tr><th>#</th><th>Name</th><th>longitude</th><th>Latitude</th><th>Type</th><th>SubType</th></tr>
+	  {% set ind = 0 %}
+	  {% for poi in poi_list %}
+	  {% set ind = ind+1 %}
+	  <tr>><td>{{ ind }}</td><td>{{ poi['poi_name'] }}</td><td>{{ poi['lng'] }}</td><td>{{ poi['lat'] }}</td><td>{{ poi['type'] }}</td><td>{{ poi['subtype'] }}</td></tr>
+	  {% endfor %}
+	{% endif %}
+  </table>
+  <div id="test"></div>
+  
+  <!-- map -->  
+  <div id="map" style="width:700px;height:500px;"></div>		
+</body>
+</html>

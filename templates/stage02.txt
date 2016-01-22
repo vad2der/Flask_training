@@ -1,0 +1,16 @@
+  {% extends "base.html" %}
+  {% block content %}
+  
+  <div id="poi_collection_choise" hidden>{{ poi_collection_list}}</div>
+  
+  <form method="GET">
+  <select name="poi_collection_choise" onchange="selected=this.value">
+  {% if poi_collection_list %}
+    {% for poi_collection in poi_collection_list %}
+	<option value={{poi_collection}}>{{poi_collection}}</option>
+	{% endfor %}
+  {% endif %}
+  </select>
+  </form>
+  
+  {% endblock %}
