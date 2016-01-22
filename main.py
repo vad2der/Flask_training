@@ -129,7 +129,7 @@ def stage02():
     return render_template('stage02.html', name='stage02', poi_list=poi_list, poi_collection_list=ctp.poi_collection_list)	
 	
 # map page
-@app.route('/map/<name>', methods=['GET', 'POST'])
+@app.route('/<name>', methods=['GET', 'POST'])
 def map(name):
     if name == 'todo':
         return render_template('todo.html', name=name)
