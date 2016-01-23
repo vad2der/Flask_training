@@ -11,15 +11,19 @@
 		<p>
 			<ul>DONE:
 			<li><a href="{{ url_for('.stage01') }}">stage 1</a>
-					<ul>
-					<li><strike>make frame works (flask to created dynamic link to js)</strike></li>
-					<li><strike>send data from flask trough html to googlemaps.js</strike> !!!is it safe???</li>
-					<li><strike>show relevant markers in googlemaps.js</strike></li>
-					<li><strike>get location and scale automatically from a list of points</strike></li>
-					<li><strike>get current viewver`s location</strike></li>
-					<li><strike>added REST api for <a href="api/collections">collections of POIs</a> and <a href="api/pois/collection 1">POIs within designated collection </a></strike></li>
-					</ul>
-				</li>
+				<ul>
+					<li>make frame works (flask to created dynamic link to js)</li>
+					<li>send data from flask trough html to googlemaps.js !!!is it safe???</li>
+					<li>show relevant markers in googlemaps.js</li>
+					<li>get location and scale automatically from a list of points</li>
+					<li>get current viewver`s location</li>
+				</ul>
+			</li>
+			<li><a href="{{ url_for('.stage02') }}">stage 2 (current, uncompleted)</a>
+			    <ul>
+					<li>added REST api for <a href="api/collections">collections of POIs</a> and <a href="api/pois/collection 1">POIs within designated collection </a></li>
+				</ul>
+			</li>
 			</ul>
 			<ul>TODO:
 				<li>implement AJAX/Jquery to display and update/add/delete points and collections</li>
