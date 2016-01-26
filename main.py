@@ -35,7 +35,19 @@ class Collection(Resource):
         pass
 
     def post(self):
-        pass
+        args = parser.parse_args()
+        print ('---------------------------------------------')
+        print (args)
+        if type(poi_ids) is not list:
+            poi_ids = [poi_ids]
+        new_collection = {"name": args, "poi_ids": []}
+        if new_collection not in self.poi_collection_list:
+            self.poi_collection_list.append(new_collection)
+        else:
+            for col in self.poi_collection_list:
+                if col["name"] == new_collection_name:
+                    col = new_collection
+        return new_collection, 201
  
     def delete(self):
         pass

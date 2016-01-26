@@ -4,13 +4,15 @@
   <div id="poi_collection_choise" hidden>{{ poi_collection_list}}</div>
   
   <form method="GET">
-  <select name="poi_collection_choise" onchange="selected=this.value">
-  {% if poi_collection_list %}
-    {% for poi_collection in poi_collection_list %}
-	<option value={{poi_collection}}>{{poi_collection}}</option>
-	{% endfor %}
-  {% endif %}
-  </select>
+  
   </form>
+  
+  <p><select type="text" id="collections"></select>
+  <input id="new_col_name" value="Enter new collection name.." onfocus="if (this.value == 'Enter new collection name..') this.value=''"  />
+  <button id="add-collection">Add</button></p>
+  
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script src="{{ url_for('static', filename='collections.js') }}"></script>
   
   {% endblock collection %}
