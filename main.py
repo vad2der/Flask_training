@@ -5,7 +5,7 @@ training on Flask
 from flask import Flask, request, render_template, flash, url_for
 import json
 import random
-from flask_restful import reqparse, abort, Api, Resource
+from flask_restful import reqparse, abort, Api, Resource, fields
 
 app = Flask(__name__)
 api = Api(app)
@@ -23,6 +23,14 @@ class Collection(Resource):
         self.poi_list_4 = {"col_id": 444, "name": "Collection 4", "poi_ids": []}
         self.poi_collection_list = [self.poi_list_1, self.poi_list_2, self.poi_list_3, self.poi_list_4]
 
+        self.poi_col_fields = { \
+        'col_id': fields.Integer,
+        'name': fields.String,
+        'date_created': fields.DateTime,
+        'date_updated': fields.DateTime,
+        'poi_ids': fields.Integer,
+        }
+
     def get(self):        
         return self.poi_collection_list
 
@@ -35,18 +43,10 @@ class Collection(Resource):
         pass
 
     def post(self):
-        args = parser.parse_args()
-        print ('---------------------------------------------')
-        print (args)
-        if type(poi_ids) is not list:
-            poi_ids = [poi_ids]
-        new_collection = {"name": args, "poi_ids": []}
-        if new_collection not in self.poi_collection_list:
-            self.poi_collection_list.append(new_collection)
-        else:
-            for col in self.poi_collection_list:
-                if col["name"] == new_collection_name:
-                    col = new_collection
+        new_collection = {}
+        for field in self.poi_col_fields:
+            new_collection[field] = request.form.get(field)          
+        self.poi_collection_list.append(new_collection)
         return new_collection, 201
  
     def delete(self):
@@ -156,10 +156,12 @@ def abort_if_todo_doesnt_exist(collection_name):
         abort(404, message="POI list {} doesn't exist".format(collection_name))
 
 parser = reqparse.RequestParser()
+post_parser = reqparse.RequestParser()
 #parser.add_argument('the_collection')
-		
-api.add_resource(Collection, '/api/collections/')
+
+api.add_resource(Collection, '/api/collections/',  '/api/collections/<new_collection>')
 api.add_resource(POIs, '/api/pois/<the_collection>')
-		
+
+
 if __name__ == "__main__":
 	app.run(debug=True)	

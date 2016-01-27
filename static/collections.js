@@ -17,14 +17,19 @@ $(function (){
   
   $('#add-collection').on('click', function() {
     
-	var new_collection_name = $('#new_col_name')
+	var new_collection = {
+		"name": $('#new_col_name').val(),
+		"col_id": '',
+		"poi_ids": '',
+		};
 	
 	$.ajax({
 		type: 'POST',
-		url: '/api/collections',
-		data: new_collection_name,
+		url: '/api/collections/',
+		data: new_collection,
 		success: function(newCollection) {	  
-			$collections.append('<option value="' + new_collection_name + '">' + new_collection_name + '</option>')
+			$collections.append('<option value="' + new_collection.name + '">' + new_collection.name + '</option>');
+			$('#new_col_name').val("Enter new collection name..")
 		},
 		error: function() {
 			alert('error saving collection');
