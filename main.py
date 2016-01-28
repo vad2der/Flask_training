@@ -138,7 +138,7 @@ def stage01():
 @app.route('/stage02')
 def stage02():
     poi_list = ctp.randomPOIlist()
-    return render_template('stage02.html', name='stage02', poi_list=poi_list, poi_collection_list=ctp.poi_collection_list)	
+    return render_template('stage02.html', name='stage02')	
 	
 # map page
 @app.route('/<name>', methods=['GET', 'POST'])

@@ -14,9 +14,9 @@
   {% endblock collection %}
  
   <!-- pois -->
-  <div id="poi_list" hidden>{{ poi_list}}</div>
+  <div id="poi_list" hidden></div>
   
-  <table>
+  <table id="poi_list_show">
     {% if poi_list %}
 	  <tr><th>#</th><th>Name</th><th>Longitude</th><th>Latitude</th><th>Type</th><th>SubType</th></tr>
 	  {% set ind = 0 %}

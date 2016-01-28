@@ -1,16 +1,9 @@
   {% extends "base.html" %}
   {% block collection %}
-  
-  <div id="poi_collection_choise" hidden>{{ poi_collection_list}}</div>
-  
-  <form method="GET">
-  
-  </form>
-  
+   
   <p><select type="text" id="collections"></select>
   <input id="new_col_name" value="Enter new collection name.." onfocus="if (this.value == 'Enter new collection name..') this.value=''"  />
   <button id="add-collection">Add</button></p>
-  
   
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
   <script src="{{ url_for('static', filename='collections.js') }}"></script>
