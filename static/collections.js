@@ -14,7 +14,7 @@ $(function (){
   },
   error: function() {
     alert('error loading collections');
-  }
+  }  
   });
 // add a colleciton  
   $('#add-collection').on('click', function() {

@@ -116,4 +116,7 @@ function setMarkers(map) {
 	bounds.extend(loc);
   }
 }
-google.maps.event.addDomListener(window, 'load', initMap);
+$( window ).load(function() {
+  initMap(eval([]));
+});
+//google.maps.event.addDomListener(window, 'load', initMap);
