@@ -22,14 +22,14 @@
   ];
 var loc;  
 var points;
-var bounds = new google.maps.LatLngBounds();
+var bounds;
   
-function initMap() {
-
+function initMap(point_list) {
+  bounds = new google.maps.LatLngBounds();  
   // Specify features and elements to define styles.
   //Getting list of JSON objects from field and parsing it.
-  points = eval(document.getElementById("poi_list").innerHTML);
-  document.getElementById("test").innerHTML = typeof(points) + ' Collection obtained';
+  points = eval(point_list);
+  //document.getElementById("test").innerHTML = typeof(points) + ' Collection obtained';
   var map = new google.maps.Map(document.getElementById('map'), {
 	  styles: styleArray,
 	  zoom: 6
@@ -61,6 +61,7 @@ function initMap() {
     map.fitBounds(bounds);
     map.panToBounds(bounds);
   }
+
 }
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
@@ -109,10 +110,10 @@ function setMarkers(map) {
       //zIndex: String(point.type)
     });
   }
+  
   for (var p of points){
-  loc = new google.maps.LatLng(parseFloat(p.lat),parseFloat(p.lng));
-  bounds.extend(loc);
+	loc = new google.maps.LatLng(parseFloat(p.lat),parseFloat(p.lng));
+	bounds.extend(loc);
   }
 }
-
 google.maps.event.addDomListener(window, 'load', initMap);

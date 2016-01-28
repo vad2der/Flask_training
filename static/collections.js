@@ -55,7 +55,8 @@ $(function (){
 				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>longitude</th><th>Latitude</th><th>Type</th><th>SubType</th></tr>');
 				$.each(pois, function (i, poi){					
 					$poi_list_show.append('<tr>><td>'+i+'</td><td>'+poi.poi_name+'</td><td>'+poi.lng+'</td><td>'+poi.lat+'</td><td>'+poi.type+'</td><td>'+poi.subtype+'</td></tr>')
-				});				
+				});
+				initMap(JSON.stringify(pois));
 			},
 			error: function() {
 				alert('error loading pois from collection');
