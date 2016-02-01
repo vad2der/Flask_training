@@ -34,7 +34,7 @@ function initMap(point_list) {
 	  styles: styleArray,
 	  zoom: 6
     });
-  if ((typeof(points) != 'object') || (points.length == 0)){
+  if ((typeof(points) != 'object') || (points === null) || (points.length == 0)){
     // Try HTML5 geolocation.
 	var infoWindow = new google.maps.InfoWindow({map: map});
     if (navigator.geolocation) {

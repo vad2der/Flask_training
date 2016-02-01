@@ -3,7 +3,6 @@ training on Flask
 """
 
 from flask import Flask, request, render_template, flash, url_for
-import json
 import random
 from flask_restful import reqparse, abort, Api, Resource, fields
 
@@ -11,6 +10,7 @@ app = Flask(__name__)
 api = Api(app)
 
 api_out = {}
+
 
 class Collection(Resource):
     """
@@ -23,13 +23,20 @@ class Collection(Resource):
         self.poi_list_4 = {"col_id": 444, "name": "Collection 4", "poi_ids": []}
         self.poi_collection_list = [self.poi_list_1, self.poi_list_2, self.poi_list_3, self.poi_list_4]
 
-        self.poi_col_fields = { \
+        self.poi_col_fields = {
         'col_id': fields.Integer,
         'name': fields.String,
         'date_created': fields.DateTime,
         'date_updated': fields.DateTime,
         'poi_ids': fields.Integer,
         }
+
+    def createNewCollection(self, new_collection):
+        next_id = int(self.poi_collection_list[-1]["col_id"]) + 1
+        new_collection["col_id"] = next_id
+        new_collection["poi_ids"] = []
+        self.poi_collection_list.append(new_collection)
+        return self.poi_collection_list[-1]
 
     def get(self):        
         return self.poi_collection_list
@@ -38,27 +45,28 @@ class Collection(Resource):
         the_collection = random.choice(self.poi_collection_list)        
         pois = POIs()
         return pois.getListOfPOIByID(the_collection['poi_ids'])
-	
+
     def put(self):
         pass
 
     def post(self):
         new_collection = {}
         for field in self.poi_col_fields:
-            new_collection[field] = request.form.get(field)          
-        self.poi_collection_list.append(new_collection)
-        return new_collection, 201
+            new_collection[field] = request.form.get(field)
+        the_new_collection = self.createNewCollection(new_collection)
+        return the_new_collection, 201
  
     def delete(self):
         pass
+
 
 class POIs(Resource):
     """
     initial emualtion of db
     """
     def __init__(self):
-	    self.all_pois = [
-		{'poi_id': 9101, 'poi_name': 'Kamennie palatki', 'lat': 56.842912, 'lng': 60.678538, 'type': 'Natural', 'subtype': 'Rock'},
+        self.all_pois = [
+        {'poi_id': 9101, 'poi_name': 'Kamennie palatki', 'lat': 56.842912, 'lng': 60.678538, 'type': 'Natural', 'subtype': 'Rock'},
         {'poi_id': 9102, 'poi_name': 'Shartash ozero', 'lat': 56.847335, 'lng': 60.692927, 'type': 'Natural', 'subtype': 'Waterbody'},
         {'poi_id': 9103, 'poi_name': 'One more point', 'lat': 56.855640, 'lng': 60.759548,  'type': 'Natural', 'subtype': 'Rock'},
         {'poi_id': 9104, 'poi_name': 'Local Beach', 'lat': 56.859641, 'lng': 60.726486, 'type': 'Natural', 'subtype': 'Beach'},
@@ -79,7 +87,7 @@ class POIs(Resource):
                     if poi['poi_id'] == id:
                         output.append(poi)
         return output
-		
+
     def get(self, the_collection):
         col = Collection()
         the_col = ''
@@ -94,7 +102,7 @@ class POIs(Resource):
         for i in the_col['poi_ids']:
             for ap in self.all_pois:
                 if (ap['poi_id'] == i):
-                   output.append(ap)
+                    output.append(ap)
         return output
 
     def put(self):
@@ -105,28 +113,33 @@ class POIs(Resource):
  
     def delete(self):
         pass
-	
+
 
 ctp = Collection()
+
 
 # index page
 @app.route('/')
 def index():
-	return render_template('index.html')
+    return render_template('index.html')
+
 
 # if datatype = 'str'
 @app.route('/out/<service>')
 def out(service, methods=['GET', 'POST']):
-	return '<p>You have requested {}</p><p>Request method is {}</p>'. format(service, request.method)
+    return '<p>You have requested {}</p><p>Request method is {}</p>'. format(service, request.method)
+
 
 # if datatype = 'int' - explicitly cast it
 @app.route('/number/<int:num>')
 def number(num):
-	return 'You have entered number{}'. format(str(num))
+    return 'You have entered number{}'. format(str(num))
+
 
 def getPoiList():
     attempt_poi_collection = request.form.post['poi_collection_choise']
     return ctp.getPOIlist(poi_collection)	
+
 
 # stage01
 @app.route('/stage01')
@@ -134,12 +147,14 @@ def stage01():
     poi_list = ctp.randomPOIlist()
     return render_template('stage01.html', name='stage01', poi_list=poi_list)
 
+
 # stage02
 @app.route('/stage02')
 def stage02():
     poi_list = ctp.randomPOIlist()
     return render_template('stage02.html', name='stage02')	
-	
+
+
 # map page
 @app.route('/<name>', methods=['GET', 'POST'])
 def map(name):
@@ -151,17 +166,18 @@ def map(name):
     except Exception as e:
         return render_template('map_view.html', name=name, poi_collection_list=ctp.poi_collection_list)
 
+
 def abort_if_todo_doesnt_exist(collection_name):
     if collection_name not in ctp.collection_list:
         abort(404, message="POI list {} doesn't exist".format(collection_name))
 
 parser = reqparse.RequestParser()
 post_parser = reqparse.RequestParser()
-#parser.add_argument('the_collection')
+# parser.add_argument('the_collection')
 
 api.add_resource(Collection, '/api/collections/',  '/api/collections/<new_collection>')
 api.add_resource(POIs, '/api/pois/<the_collection>')
 
 
 if __name__ == "__main__":
-	app.run(debug=True)	
+    app.run(debug=True)
