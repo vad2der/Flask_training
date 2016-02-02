@@ -2,7 +2,7 @@
 training on Flask
 """
 
-from flask import Flask, request, render_template, flash, url_for
+from flask import Flask, request, render_template, flash, url_for, jsonify
 import random
 from flask_restful import reqparse, abort, Api, Resource, fields
 
@@ -38,7 +38,7 @@ class Collection(Resource):
         self.poi_collection_list.append(new_collection)
         return self.poi_collection_list[-1]
 
-    def get(self):        
+    def get(self):
         return self.poi_collection_list
 
     def randomPOIlist(self):
@@ -133,7 +133,7 @@ def out(service, methods=['GET', 'POST']):
 # if datatype = 'int' - explicitly cast it
 @app.route('/number/<int:num>')
 def number(num):
-    return 'You have entered number{}'. format(str(num))
+    return 'You have entered number {}'. format(str(num))
 
 
 def getPoiList():
@@ -152,8 +152,12 @@ def stage01():
 @app.route('/stage02')
 def stage02():
     poi_list = ctp.randomPOIlist()
-    return render_template('stage02.html', name='stage02')	
+    return render_template('stage02.html', name='stage02')
 
+#test custom rest api
+@app.route('/test')
+def test():
+    return jsonify(name="Olga", nickname="Hare", attribute1='sweet', attributr2='sexy')
 
 # map page
 @app.route('/<name>', methods=['GET', 'POST'])
@@ -175,7 +179,7 @@ parser = reqparse.RequestParser()
 post_parser = reqparse.RequestParser()
 # parser.add_argument('the_collection')
 
-api.add_resource(Collection, '/api/collections/',  '/api/collections/<new_collection>')
+api.add_resource(Collection, '/api/collections/')
 api.add_resource(POIs, '/api/pois/<the_collection>')
 
 

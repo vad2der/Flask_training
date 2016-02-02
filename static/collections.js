@@ -71,7 +71,7 @@ $(function (){
 			}
 		});
 	};
-	$('#collections').click(updatePOIList);
+	$('#collections').change(updatePOIList);
 
 	// delete collection
 	 $('#del-collection').click('click', function() {
