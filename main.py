@@ -1,15 +1,16 @@
 """
 training on Flask
 """
-
+import json
 from flask import Flask, request, render_template, flash, url_for, jsonify
 import random
 from flask_restful import reqparse, abort, Api, Resource, fields
-
+from os import path
 app = Flask(__name__)
 api = Api(app)
 
 api_out = {}
+path = path.dirname(path.abspath(__file__))
 
 
 class Collection(Resource):
@@ -17,12 +18,8 @@ class Collection(Resource):
     initial emualtion of db
     """
     def __init__(self):
-        self.poi_list_1 = {"col_id": 111, "name": "Collection 1", "poi_ids": [9101, 9102, 9103, 9104]}
-        self.poi_list_2 = {"col_id": 222, "name": "Collection 2", "poi_ids": [9201, 9202, 9203, 9204]}
-        self.poi_list_3 = {"col_id": 333, "name": "Collection 3", "poi_ids": [9301, 9302, 9303, 9304]}
-        self.poi_list_4 = {"col_id": 444, "name": "Collection 4", "poi_ids": []}
-        self.poi_collection_list = [self.poi_list_1, self.poi_list_2, self.poi_list_3, self.poi_list_4]
-
+        self.poi_collection_list = self.openDB()
+        
         self.poi_col_fields = {
         'col_id': fields.Integer,
         'name': fields.String,
@@ -30,7 +27,37 @@ class Collection(Resource):
         'date_updated': fields.DateTime,
         'poi_ids': fields.Integer,
         }
+    
+    def openDB(self):
+        output = []
+        with open(path+'\\collections.txt',mode='r') as rfile:
+            for f in rfile:
+                output.append(json.loads(f))
+        return output
+		
+    def deleteItem(self, name):
+        output = []	
+        with open(path+'\\collections.txt',mode='r') as rfile:
+            for f in rfile:
+                item = json.loads(f)
+                if item['name'] != name['name']:                   
+                   output.append(item)
+                else:
+                   print(item)
+        f1 = open(path+'\\collections.txt',mode='w')
+        f1.close()
+        with open(path+'\\collections.txt',mode='a') as outfile:
+            for o in output:
+                json.dump(o, outfile)
+                outfile.write('\n')
+        self.poi_collection_list = self.openDB()
 
+    def addItem(self, item):
+        with open(path+'\\collections.txt',mode='a') as outfile:
+            json.dump(item, outfile)
+            outfile.write('\n')
+        self.poi_collection_list = self.openDB()
+	
     def createNewCollection(self, new_collection):
         next_id = int(self.poi_collection_list[-1]["col_id"]) + 1
         new_collection["col_id"] = next_id
@@ -38,7 +65,7 @@ class Collection(Resource):
         self.poi_collection_list.append(new_collection)
         return self.poi_collection_list[-1]
 
-    def get(self):
+    def get(self, param):
         return self.poi_collection_list
 
     def randomPOIlist(self):
@@ -46,18 +73,38 @@ class Collection(Resource):
         pois = POIs()
         return pois.getListOfPOIByID(the_collection['poi_ids'])
 
-    def put(self):
+    def getNames(self):
+        output = []
+        for collection in self.poi_collection_list:
+            if 'name' in collection.keys():
+                output.append(collection['name'])
+        return output
+
+    def put(self, param):
         pass
 
-    def post(self):
+    def post(self, param):
         new_collection = {}
         for field in self.poi_col_fields:
             new_collection[field] = request.form.get(field)
         the_new_collection = self.createNewCollection(new_collection)
+        self.addItem(the_new_collection)
         return the_new_collection, 201
  
-    def delete(self):
-        pass
+    def delete(self, param):
+        if param in self.getNames():
+            for collection in self.poi_collection_list:
+                if collection['name'] == param:
+                    self.deleteItem(collection)
+            return '', 204
+        else:
+            print('no such collection')
+
+    def delete_collection(self, name):
+        for collection in self.poi_collection_list:
+            if collection['name'] == name:
+                print (jsonify(self.poi_collection_list[collection]))
+                del self.poi_collection_list[collection]
 
 
 class POIs(Resource):
@@ -179,7 +226,7 @@ parser = reqparse.RequestParser()
 post_parser = reqparse.RequestParser()
 # parser.add_argument('the_collection')
 
-api.add_resource(Collection, '/api/collections/')
+api.add_resource(Collection, '/api/collections/<param>')
 api.add_resource(POIs, '/api/pois/<the_collection>')
 
 

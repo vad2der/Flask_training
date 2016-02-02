@@ -4,10 +4,11 @@ $(function (){
     var getCollectionNames = function() {
     $.ajax({
         type: 'GET',
-	    url: '/api/collections',
+	    url: '/api/collections/all',
 	    success: function(collections) {
 	    $('#collections').find('option').remove()
 	    $collections.append('<option disabled selected>..select a collection..</option>'),
+			$('#del-collection').hide(500);
 	        $.each(collections, function (i, collection){
 	            $collections.append('<option value="' + collection.name + '">' + collection.name + '</option>')
 	        });
@@ -31,7 +32,7 @@ $(function (){
 	
 	    $.ajax({
 		    type: 'POST',
-		    url: '/api/collections/',
+		    url: '/api/collections/'+new_collection,
 		    data: new_collection,
 		    success: function(newCollection) {
 			    $collections.append('<option value="' + new_collection.name + '"selected>' + new_collection.name + '</option>');
@@ -50,17 +51,31 @@ $(function (){
 		var the_collection = $('#collections').val();
 		var $poi_list = $('#poi_list');
 		var $poi_list_show = $('#poi_list_show');
+		var index = 0;
+		var nextIndex = function(){
+			var newIndex = index + 1;
+			return newIndex}
+		var pointTemplate = "<tr>"+
+			"<td>{{index}}</td>"+
+			"<td>{{poi_name}}</td>"+
+			"<td>{{lng}}</td>"+
+			"<td>{{lat}}</td>"+
+			"<td>{{type}}</td>"+
+			"<td>{{subtype}}</td>"+
+			"<th><button data-id='{{id}}'class='edit'>E</button></th>"+
+			"<th><button data-id='{{id}}'class='remove'>D</button></th></tr>";
 		
 		$.ajax({  
 			type: 'GET',
 			url: '/api/pois/'+the_collection,
 			success: function(pois) {
-				$('#poi_list').empty();
-				$poi_list.append(JSON.stringify(pois));
+				//$('#poi_list').empty();
+				//$poi_list.append(JSON.stringify(pois));
 				$('#poi_list_show').empty();
-				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>longitude</th><th>Latitude</th><th>Type</th><th>SubType</th></tr>');
-				$.each(pois, function (i, poi){					
-					$poi_list_show.append('<tr>><td>'+i+'</td><td>'+poi.poi_name+'</td><td>'+poi.lng+'</td><td>'+poi.lat+'</td><td>'+poi.type+'</td><td>'+poi.subtype+'</td></tr>')
+				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>longitude</th><th>Latitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>Delete</th></tr>');
+				$.each(pois, function (i, poi){
+					poi.index = i+1;
+					$poi_list_show.append(Mustache.render(pointTemplate, poi));
 				});
 				initMap(JSON.stringify(pois));
 				$('#del-collection').show(500);
@@ -74,24 +89,25 @@ $(function (){
 	$('#collections').change(updatePOIList);
 
 	// delete collection
-	 $('#del-collection').click('click', function() {
-
-	    var del_collection_name = $('#new_col_name');
-
+	 var deleteCollection = function() {
+	    var del_collection = {
+		    name: $('#collections').val()
+		};		
 	    $.ajax({
 		    type: 'DELETE',
-		    url: '/api/collections/',
+		    url: '/api/collections/'+del_collection.name,
 		    success: function() {
-
+				getCollectionNames();
 		    },
 		    error: function() {
 			    alert('error deleting collection');
 		    }
 	    });
-    });
-
+    };
+	$('#del-collection').click(deleteCollection);
+	
     // add point
-    $('#del-poi').on('click', function() {
+    var addPoint = function() {
 
 	    var new_poi = {
 	        "name": $('#new_col_name'),
@@ -108,5 +124,27 @@ $(function (){
 			    alert('error adding point');
 		    }
 	    });
-    });
+    };
+	$('#add-poi').click(addPoint);
+		
+    // delete point
+    var deletePoint = function() {
+
+	    var new_poi = {
+	        "name": $('#new_col_name'),
+	    }
+
+	    $.ajax({
+		    type: 'DELETE',
+		    url: 'api/pois'+$(this).attr('data-id'),
+		    data: new_poi,
+		    success: function() {
+
+		    },
+		    error: function() {
+			    alert('error adding point');
+		    }
+	    });
+    };
+	$('.remove').click(deletePoint); 
  })
