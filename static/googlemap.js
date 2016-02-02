@@ -43,7 +43,7 @@ function initMap(point_list) {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
-      document.getElementById("test").innerHTML = pos.lat +' '+ pos.lng;
+     // document.getElementById("test").innerHTML = pos.lat +' '+ pos.lng;
       infoWindow.setPosition(pos);
       infoWindow.setContent('Current location shown. No collection selected to present.');
       map.setCenter(pos);
