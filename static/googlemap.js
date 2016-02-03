@@ -23,7 +23,7 @@ var styleArray = [
   
 var loc;  
 var points;
-var bounds = new google.maps.LatLngBounds(); ;
+var bounds = new google.maps.LatLngBounds();
 var markers = [];
 var initialPosition = {lat: 60.0, lng: 60.0};
 
@@ -57,10 +57,11 @@ var map = new google.maps.Map(document.getElementById('map'), {
 // set markers, center, zoom
 function setMapView(point_list) {
 	points = eval(point_list);
+	
 	if ((typeof(points) != 'object') || (points === null) || (points.length == 0)){	
 		map.setCenter(initialPosition);
 	}
-	else{
+	else{		
 		setMarkers(map);
 		map.fitBounds(bounds);
 		map.panToBounds(bounds);
@@ -78,7 +79,8 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 // order in which these markers should display on top of each other.
 
 function setMarkers(map) {
-  // Adds markers to the map.	
+  // Adds markers to the map.
+	bounds = new google.maps.LatLngBounds();
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
 		var marker = new google.maps.Marker({
@@ -88,13 +90,9 @@ function setMarkers(map) {
 			//shape: shape,
 			title: String(point.name)
 			//zIndex: String(point.type)
-		});
-	}
-  
-	for (var p of points){
-		loc = new google.maps.LatLng(parseFloat(p.lat),parseFloat(p.lng));
-		bounds.extend(loc);
-	}
+		});		
+		bounds.extend(new google.maps.LatLng(parseFloat(point.lat),parseFloat(point.lng)));
+	}		
 }
 
 $( window ).load(function() {

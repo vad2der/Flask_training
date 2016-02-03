@@ -1,5 +1,26 @@
 $(function (){
     var $collections = $('#collections');
+	var pointTemplate = "<tr>"+
+		"<td>{{index}}</td>"+
+		"<td>{{poi_name}}</td>"+
+		"<td>{{lat}}</td>"+
+		"<td>{{lng}}</td>"+
+		"<td>{{type}}</td>"+
+		"<td>{{subtype}}</td>"+
+		"<th><button data-id='{{id}}'class='edit'>E</button></th>"+
+		"<th><button data-id='{{id}}'class='remove_from_collection'>R</button></th></tr>";
+	
+	var pointTemplateAll = "<tr>"+
+		"<td>{{index}}</td>"+
+		"<td>{{poi_name}}</td>"+
+		"<td>{{lat}}</td>"+
+		"<td>{{lng}}</td>"+
+		"<td>{{type}}</td>"+
+		"<td>{{subtype}}</td>"+
+		"<th><button data-id='{{id}}'class='edit'>E</button></th>"+
+		"<th><button data-id='{{id}}'class='remove'>D</button></th>"+
+		"<th><button data-id='{{id}}'class='send'>S</button></th></tr>";
+			
     // fill colections list
     var getCollectionNames = function() {
     $.ajax({
@@ -38,7 +59,7 @@ $(function (){
 			    $collections.append('<option value="' + new_collection.name + '"selected>' + new_collection.name + '</option>');
 			    $('#new_col_name').val("Enter new collection name..")
 			    updatePOIList();
-			    $('#new_poi').show(500);
+			    
 		    },
 		    error: function() {
 			    alert('error saving collection');
@@ -55,15 +76,6 @@ $(function (){
 		var nextIndex = function(){
 			var newIndex = index + 1;
 			return newIndex}
-		var pointTemplate = "<tr>"+
-			"<td>{{index}}</td>"+
-			"<td>{{poi_name}}</td>"+
-			"<td>{{lat}}</td>"+
-			"<td>{{lng}}</td>"+
-			"<td>{{type}}</td>"+
-			"<td>{{subtype}}</td>"+
-			"<th><button data-id='{{id}}'class='edit'>E</button></th>"+
-			"<th><button data-id='{{id}}'class='remove'>D</button></th></tr>";
 		
 		$.ajax({  
 			type: 'GET',
@@ -72,14 +84,14 @@ $(function (){
 				//$('#poi_list').empty();
 				//$poi_list.append(JSON.stringify(pois));
 				$('#poi_list_show').empty();
-				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>Delete</th></tr>');
+				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>RemoveFromCollection</th></tr>');
 				$.each(pois, function (i, poi){
 					poi.index = i+1;
 					$poi_list_show.append(Mustache.render(pointTemplate, poi));
 				});
 				setMapView(JSON.stringify(pois));
 				$('#del-collection').show(500);
-				$('#new_poi').show(500);
+				
 			},
 			error: function() {
 				alert('error loading pois from collection');
@@ -106,6 +118,29 @@ $(function (){
     };
 	$('#del-collection').click(deleteCollection);
 	
+	// get list of all (searched points)
+	var getPOIs = function() {
+		//default search criteria to be developed
+		var search_criteria = 'all'
+		var $all_pois = $('#all_pois');
+		
+		$.ajax({
+		    type: 'GET',
+		    url: '/api/pois/'+search_criteria,
+		    success: function(pois) {
+				$('#all_pois').empty();
+				$all_pois.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>Delete</th><th>SendToColelction</th></tr>');
+				$.each(pois, function (i, poi){
+					poi.index = i+1;
+					$all_pois.append(Mustache.render(pointTemplateAll, poi));
+				});	
+		    },
+		    error: function() {
+			    alert('error getting points');
+		    }
+	    });
+	}
+	$(window).load(getPOIs);
     // add point
     var addPoint = function() {
 

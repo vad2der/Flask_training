@@ -17,13 +17,19 @@
   {% endblock collection %}
  
   <!-- pois -->
+  
   <div id="poi_list" hidden></div>
   
   <table id="poi_list_show"></table>
 
   <div id="test" hidden></div>
 
-  <p id="new_poi" hidden>
+  <!-- map -->
+  <h2>Map</h2>
+  <div id="map" style="width:700px;height:500px;"></div>
+  
+  <!-- add a point -->
+  <p id="new_poi">
     <input id="new_poi_name" value="Enter new point name.." onfocus="if (this.value == 'Enter new point name..') this.value=''"  />
     <input id="lat"  value="Latitude.." onfocus="if (this.value == 'Latitude..') this.value=''"  />
     <input id="lon" value="Longitude.." onfocus="if (this.value == 'Longitude..') this.value=''"  />
@@ -31,9 +37,9 @@
     <input id="subtype" value="Subtype.." onfocus="if (this.value == 'Subtype..') this.value=''"  />
     <button id="add-poi">Add</button>
   </p>
-
-  <!-- map -->  
-  <div id="map" style="width:700px;height:500px;"></div>
+  <!-- all points or searched ones -->  
+  <h2>All points</h2>
+  <table id="all_pois"></table>
   
 </body>
 	<script type="text/javascript" src="{{ url_for('static', filename='googlemap.js') }}"></script>
