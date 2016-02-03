@@ -2,10 +2,9 @@
 <html>
 <title>Map view page</title>
 <head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
-<script src="http://maps.googleapis.com/maps/api/js"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='googlemap.js') }}"></script>
+	<script src="http://maps.googleapis.com/maps/api/js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
 <!--
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"></link>
 -->
@@ -20,16 +19,8 @@
   <!-- pois -->
   <div id="poi_list" hidden></div>
   
-  <table id="poi_list_show">
-    {% if poi_list %}
-	  <tr><th>#</th><th>Name</th><th>Longitude</th><th>Latitude</th><th>Type</th><th>SubType</th></tr>
-	  {% set ind = 0 %}
-	  {% for poi in poi_list %}
-	  {% set ind = ind+1 %}
-	  <tr>><td>{{ ind }}</td><td>{{ poi['poi_name'] }}</td><td>{{ poi['lng'] }}</td><td>{{ poi['lat'] }}</td><td>{{ poi['type'] }}</td><td>{{ poi['subtype'] }}</td></tr>
-	  {% endfor %}
-	{% endif %}
-  </table>
+  <table id="poi_list_show"></table>
+
   <div id="test" hidden></div>
 
   <p id="new_poi" hidden>
@@ -42,6 +33,9 @@
   </p>
 
   <!-- map -->  
-  <div id="map" style="width:700px;height:500px;"></div>		
+  <div id="map" style="width:700px;height:500px;"></div>
+  
 </body>
+	<script type="text/javascript" src="{{ url_for('static', filename='googlemap.js') }}"></script>
+	<script src="{{ url_for('static', filename='collections.js') }}"></script>
 </html>

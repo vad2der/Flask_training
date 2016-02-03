@@ -58,8 +58,8 @@ $(function (){
 		var pointTemplate = "<tr>"+
 			"<td>{{index}}</td>"+
 			"<td>{{poi_name}}</td>"+
-			"<td>{{lng}}</td>"+
 			"<td>{{lat}}</td>"+
+			"<td>{{lng}}</td>"+
 			"<td>{{type}}</td>"+
 			"<td>{{subtype}}</td>"+
 			"<th><button data-id='{{id}}'class='edit'>E</button></th>"+
@@ -72,12 +72,12 @@ $(function (){
 				//$('#poi_list').empty();
 				//$poi_list.append(JSON.stringify(pois));
 				$('#poi_list_show').empty();
-				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>longitude</th><th>Latitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>Delete</th></tr>');
+				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>Delete</th></tr>');
 				$.each(pois, function (i, poi){
 					poi.index = i+1;
 					$poi_list_show.append(Mustache.render(pointTemplate, poi));
 				});
-				initMap(JSON.stringify(pois));
+				setMapView(JSON.stringify(pois));
 				$('#del-collection').show(500);
 				$('#new_poi').show(500);
 			},
