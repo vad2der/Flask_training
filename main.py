@@ -88,11 +88,34 @@ class Collection(Resource):
                 print (jsonify(self.poi_collection_list[collection]))
                 del self.poi_collection_list[collection]
 
+    def saveCollectionToDB(self):
+        with open(path+'\\collections.txt',mode='w') as outfile:
+            for collection in self.poi_collection_list:
+                json.dump(collection, outfile)
+                outfile.write('\n')
+				
     def put(self, param):
-        old_collection_name = request.form.get('old_name_collection')
-        new_collection_name = request.form.get('new_name_collection')
-        numbers = request.form.get('poi_ids')
-        updated_colection = updateCollectioninDB(old_collection_name, new_collection_name, numbers)
+        updated_collection = ''
+        action = request.form.get('action')        
+        if action == "send":
+            poi_id = int(request.form.get('poi_id'))
+            for collection in self.poi_collection_list:
+                if ((collection["name"] == param) and (poi_id not in collection["poi_ids"])):
+                    collection["poi_ids"].append(poi_id)
+                    updated_collection = collection
+            self.saveCollectionToDB()			
+        if action == "remove":
+            poi_id = int(request.form.get('poi_id'))
+            for collection in self.poi_collection_list:
+                if (collection["name"] == param):
+                    collection["poi_ids"].remove(poi_id)
+                    updated_collection = collection
+            self.saveCollectionToDB()
+        if action == "rename":
+            old_collection_name = request.form.get('old_name_collection')
+            new_collection_name = request.form.get('new_name_collection')
+            numbers = request.form.get('poi_ids')
+            updated_colection = updateCollectioninDB(old_collection_name, new_collection_name, numbers)
         return updated_collection, 201
 
     def post(self, param):

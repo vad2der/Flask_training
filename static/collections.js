@@ -221,14 +221,18 @@ $(function (){
 	// sending point to collection
 	var sentPointToCollection = function(id) {
 	    var the_point ={
-			poi_id: id
+			poi_id: id,
+			action: "send"
 		};
+		var the_collection = {
+		    name: $('#collections').val()
+			};
 		$.ajax({
 		    type: 'PUT',
-		    url: 'api/pois/update',
+		    url: 'api/collections/'+the_collection.name,
 			data: the_point,
 		    success: function() {
-				getPOIs();
+				updatePOIList();
 		    },
 		    error: function() {
 			    alert('error sending point to the collection');
@@ -242,7 +246,8 @@ $(function (){
 	// removing point from collection
 	var removePointFromCollection = function(id) {
 	    var the_point ={
-			poi_id: id
+			poi_id: id,
+			action: "remove"
 		};
 		var the_collection = {
 		    name: $('#collections').val()
@@ -252,7 +257,7 @@ $(function (){
 		    url: 'api/collections/'+the_collection.name,
 			data: the_point,
 		    success: function() {
-				getPOIs();
+				updatePOIList();
 		    },
 		    error: function() {
 			    alert('error removing point from the collection');
