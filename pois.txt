@@ -10,3 +10,5 @@
 {"poi_id": 9302, "poi_name": "Roses Citadel", "lat": 42.265580, "lng": 3.170584, "type": "Historical", "subtype": "Museum"}
 {"poi_id": 9303, "poi_name": "Trinity Castle", "lat": 42.246668, "lng": 3.182242, "type": "Historical", "subtype": "Museum"}
 {"poi_id": 9304, "poi_name": "Dolmen Path (Start)", "lat": 42.256068, "lng": 3.197926, "type": "Historical", "subtype": "Dolmen"}
+{"lng": "120", "poi_id": null, "date_updated": null, "subtype": "st", "lat": "60", "date_created": null, "type": "t", "poi_name": null}
+{"lng": "110", "poi_id": null, "date_updated": null, "subtype": "st", "lat": "50", "date_created": null, "type": "t", "poi_name": "testPoint"}

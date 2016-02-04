@@ -137,7 +137,7 @@ class POIs(Resource):
                 output.append(json.loads(f))
         return output
 
-    def addPOItoBD(self, new_poi):
+    def addPOItoDB(self, item):
         with open(path+'\\pois.txt',mode='a') as outfile:
             json.dump(item, outfile)
             outfile.write('\n')
@@ -159,8 +159,7 @@ class POIs(Resource):
         return output
 
     def get(self, the_collection):
-        if the_collection == 'all':
-            print('All POIs requested')
+        if the_collection == 'all':            
             return self.all_pois
         col = Collection()
         the_col = ''
@@ -181,12 +180,12 @@ class POIs(Resource):
     def put(self):
         pass
 
-    def post(self, param):
-        new_poi = {}	
+    def post(self, the_collection):
+        new_poi = {}
         for field in self.poi_fields:
-            new_poi[field] = request.form.get(field)
-        self.addPOItoDB(new_poi)		
-        return self.all_pois[-1], 201
+            new_poi[field] = request.form.get(field)        
+        self.addPOItoDB(new_poi)
+        return new_poi, 201
 		
     def delete(self):
         pass

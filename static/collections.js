@@ -143,24 +143,54 @@ $(function (){
 	$(window).load(getPOIs);
     // add point
     var addPoint = function() {
-
 	    var new_poi = {
-	        "name": $('#new_col_name'),
+	        poi_name: $('#new_poi_name').val(),
+			lat: $('#lat').val(),
+			lng: $('#lng').val(),
+			type: $('#type').val(),
+			subtype: $('#subtype').val()
 	    }
-
-	    $.ajax({
-		    type: 'POST',
-		    url: '',
-		    data: new_poi,
-		    success: function() {
-
-		    },
-		    error: function() {
-			    alert('error adding point');
-		    }
-	    });
+		if (newPOIcheck(new_poi)){
+			$.ajax({
+				type: 'POST',
+				url: '/api/pois/'+new_poi,
+				data: new_poi,
+				success: function() {
+					getPOIs();
+				},
+				error: function() {
+					alert('error adding point');
+				}
+			});
+		}
     };
 	$('#add-poi').click(addPoint);
+	
+	//function to check if all fields are filled properly, more soficsticated check to be implemented	
+	var newPOIcheck = function (new_poi){	
+		var check = true;
+		if ((new_poi.poi_name.length == 0) || (new_poi.poi_name == 'Enter new point name..')){
+			window.alert('Name fields is required');
+			check = false;
+		}
+		if ((new_poi.lat.length == 0) || (new_poi.lat == 'Latitude..') || (isNaN(parseFloat(new_poi.lat)))){
+			window.alert('Latitude fields is required');
+			check = false;
+		}
+		if ((new_poi.lng.length == 0) || (new_poi.lng == 'Latitude..') || (isNaN(parseFloat(new_poi.lng)))){
+			window.alert('Longitude fields is required');
+			check = false;
+		}
+		if ((new_poi.type.length == 0) || (new_poi.type == 'Type..')){
+			window.alert('Type fields is required');
+			check = false;
+		}
+		if ((new_poi.subtype.length == 0) || (new_poi.subtype == 'Subtype..')){
+			window.alert('Subtype fields is required');
+			check = false;
+		}
+		return check;
+	}
 		
     // delete point
     var deletePoint = function() {
