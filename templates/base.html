@@ -2,12 +2,11 @@
 <html>
 <title>Map view page</title>
 <head>
-	<script src="http://maps.googleapis.com/maps/api/js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
-<!--
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"></link>
--->
+  <script src="http://maps.googleapis.com/maps/api/js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"></link>
+
 </head>
 <body>
   <h1>Map view - {{ name }}</h1>
@@ -20,7 +19,9 @@
   
   <div id="poi_list" hidden></div>
   
-  <table id="poi_list_show"></table>
+  <table id="poi_list_show">
+
+  </table>
 
   <div id="test" hidden></div>
 

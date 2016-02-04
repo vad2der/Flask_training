@@ -6,6 +6,7 @@ from flask import Flask, request, render_template, flash, url_for, jsonify
 import random
 from flask_restful import reqparse, abort, Api, Resource, fields
 from os import path
+import datetime
 
 app = Flask(__name__)
 api = Api(app)
@@ -207,8 +208,19 @@ class POIs(Resource):
                     output.append(ap)
         return output
 
-    def put(self):
-        pass
+    def put(self,the_collection):
+        updated_poi = {}
+        if the_collection == 'update':
+            for field in self.poi_fields:
+                updated_poi[field] = request.form.get(field)
+                print(str(field),": ",str(updated_poi[field]))
+        updated_poi['poi_id'] = int(updated_poi['poi_id'])
+        for poi in self.all_pois:
+            if poi['poi_id'] == updated_poi['poi_id']:
+                self.all_pois.remove(poi)
+                self.all_pois.append(updated_poi)
+        self.saveDB(self.all_pois)
+        return updated_poi, 201
 
     def post(self, the_collection):
         new_poi = {}

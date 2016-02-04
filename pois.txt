@@ -1,14 +1,14 @@
-{"poi_name": "Kamennie palatki", "subtype": "Rock", "lng": 60.678538, "poi_id": 9101, "lat": 56.842912, "type": "Natural"}
-{"poi_name": "Shartash ozero", "subtype": "Waterbody", "lng": 60.692927, "poi_id": 9102, "lat": 56.847335, "type": "Natural"}
-{"poi_name": "One more point", "subtype": "Rock", "lng": 60.759548, "poi_id": 9103, "lat": 56.85564, "type": "Natural"}
-{"poi_name": "Local Beach", "subtype": "Beach", "lng": 60.726486, "poi_id": 9104, "lat": 56.859641, "type": "Natural"}
-{"poi_name": "Prince`s Island", "subtype": "Park", "lng": -114.070241, "poi_id": 9201, "lat": 51.05552, "type": "Natural"}
-{"poi_name": "Nose Hill", "subtype": "Park", "lng": -114.111217, "poi_id": 9202, "lat": 51.105876, "type": "Natural"}
-{"poi_name": "Baker Park", "subtype": "Park", "lng": -114.219045, "poi_id": 9203, "lat": 51.100791, "type": "Natural"}
-{"poi_name": "Canada Olimpic Park", "subtype": "Winter Sport Activity Park", "lng": -114.215201, "poi_id": 9204, "lat": 51.08295, "type": "Recreation"}
-{"poi_name": "Roses City Beach", "subtype": "Beach", "lng": 3.174488, "poi_id": 9301, "lat": 42.262312, "type": "Natural"}
-{"poi_name": "Roses Citadel", "subtype": "Museum", "lng": 3.170584, "poi_id": 9302, "lat": 42.26558, "type": "Historical"}
-{"poi_name": "Trinity Castle", "subtype": "Museum", "lng": 3.182242, "poi_id": 9303, "lat": 42.246668, "type": "Historical"}
-{"poi_name": "Dolmen Path (Start)", "subtype": "Dolmen", "lng": 3.197926, "poi_id": 9304, "lat": 42.256068, "type": "Historical"}
-{"lng": "110", "date_created": null, "subtype": "st", "poi_name": "testPoint", "date_updated": null, "poi_id": 2, "lat": "50", "type": "t"}
-{"lng": "100", "date_created": null, "subtype": "st", "poi_name": "askhghlsd", "date_updated": null, "poi_id": 3, "lat": "55", "type": "t"}
+{"lat": 56.842912, "type": "Natural", "poi_name": "Kamennie palatki", "lng": 60.678538, "subtype": "Rock", "poi_id": 9101}
+{"lat": 56.847335, "type": "Natural", "poi_name": "Shartash ozero", "lng": 60.692927, "subtype": "Waterbody", "poi_id": 9102}
+{"lat": 56.85564, "type": "Natural", "poi_name": "One more point", "lng": 60.759548, "subtype": "Rock", "poi_id": 9103}
+{"lat": 56.859641, "type": "Natural", "poi_name": "Local Beach", "lng": 60.726486, "subtype": "Beach", "poi_id": 9104}
+{"lat": 51.05552, "type": "Natural", "poi_name": "Prince`s Island", "lng": -114.070241, "subtype": "Park", "poi_id": 9201}
+{"lat": 51.105876, "type": "Natural", "poi_name": "Nose Hill", "lng": -114.111217, "subtype": "Park", "poi_id": 9202}
+{"lat": 51.100791, "type": "Natural", "poi_name": "Baker Park", "lng": -114.219045, "subtype": "Park", "poi_id": 9203}
+{"lat": 51.08295, "type": "Recreation", "poi_name": "Canada Olimpic Park", "lng": -114.215201, "subtype": "Winter Sport Activity Park", "poi_id": 9204}
+{"lat": 42.262312, "type": "Natural", "poi_name": "Roses City Beach", "lng": 3.174488, "subtype": "Beach", "poi_id": 9301}
+{"lat": 42.26558, "type": "Historical", "poi_name": "Roses Citadel", "lng": 3.170584, "subtype": "Museum", "poi_id": 9302}
+{"lat": 42.246668, "type": "Historical", "poi_name": "Trinity Castle", "lng": 3.182242, "subtype": "Museum", "poi_id": 9303}
+{"lat": 42.256068, "type": "Historical", "poi_name": "Dolmen Path (Start)", "lng": 3.197926, "subtype": "Dolmen", "poi_id": 9304}
+{"lng": "110", "type": "t", "poi_name": "testPoint", "date_created": null, "subtype": "st", "lat": "50", "poi_id": 2, "date_updated": null}
+{"lng": "100", "date_created": null, "type": "t", "poi_name": "askhghlsd", "lat": "55", "subtype": "st", "poi_id": 3, "date_updated": null}

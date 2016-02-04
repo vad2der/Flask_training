@@ -1,26 +1,26 @@
 $(function (){
     var $collections = $('#collections');
 	var $all_pois = $('#all_pois');
-	var pointTemplate = "<tr>"+
-		"<td>{{index}}</td>"+
-		"<td>{{poi_name}}</td>"+
-		"<td>{{lat}}</td>"+
-		"<td>{{lng}}</td>"+
-		"<td>{{type}}</td>"+
-		"<td>{{subtype}}</td>"+
-		"<th><button data-id='{{poi_id}}'class='edit'>E</button></th>"+
-		"<th><button data-id='{{poi_id}}'class='remove_from_collection'>R</button></th></tr>";
+	var $poi_list_show = $('#poi_list_show');
 	
-	var pointTemplateAll = "<tr id='poi'>"+
-		"<td>{{index}}</td>"+
-		"<td>{{poi_name}}</td>"+
-		"<td>{{lat}}</td>"+
-		"<td>{{lng}}</td>"+
-		"<td>{{type}}</td>"+
-		"<td>{{subtype}}</td>"+
-		"<th><button data-id={{poi_id}} class='edit'>E</button></th>"+
-		"<th><button data-id={{poi_id}} class='remove'>D</button></th>"+
-		"<th><button data-id={{poi_id}} class='send'>S</button></th></tr>";
+	var pointTemplate = "<tr><td>{{index}}</td>"+
+		"<td><span class='noedit name'>{{poi_name}}</span><input class='edit name'/></td>"+
+		"<td><span class='noedit lat'>{{lat}}</span><input class='edit lat'/></td>"+
+		"<td><span class='noedit lng'>{{lng}}</span><input class='edit lng'/></td>"+
+		"<td><span class='noedit type'>{{type}}</span><input iclass='edit type'/></td>"+
+		"<td><span class='noedit subtype'>{{subtype}}</span><input class='edit subtype'/></td>"+
+		"<td><button data-id='{{poi_id}}' id='edit_button' class='noedit buttonE'>Edit</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonS'>Save</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonC'>Cancel</button></td>"+
+		"<td><button data-id='{{poi_id}}' id='remove_from_collection' class='noedit'>Remove</button></td></tr>";
+	
+	var pointTemplateAll = "<tr id='poi'><td>{{index}}</td>"+
+		"<td><span class='noedit name'>{{poi_name}}</span><input id='name' class='edit name'/></td>"+
+		"<td><span class='noedit lat'>{{lat}}</span><input id='lat' class='edit lat'/></td>"+
+		"<td><span class='noedit lng'>{{lng}}</span><input id='lng' class='edit lng'/></td>"+
+		"<td><span class='noedit type'>{{type}}</span><input id='type' class='edit type'/></td>"+
+		"<td><span class='noedit subtype'>{{subtype}}</span><input id='subtype' class='edit subtype'/></td>"+
+		"<td><button data-id='{{poi_id}}' id='edit_button' class='noedit buttonE'>Edit</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonS'>Save</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonC'>Cancel</button></td>"+
+		"<td><button data-id={{poi_id}} id='remove' class='noedit'>Delete</button></td>"+
+		"<td><button data-id={{poi_id}} id='send' class='noedit'>Send</button></td></tr>";
 			
     // fill colections list
     var getCollectionNames = function() {
@@ -214,7 +214,7 @@ $(function (){
 		    }
 	    });
     };
-	$("#all_pois").delegate('.remove', 'click', function() {
+	$("#all_pois").delegate('#remove', 'click', function() {
 		deletePoint($(this).attr('data-id')); 
 	});
 	
@@ -239,7 +239,7 @@ $(function (){
 		    }
 	    });
 	}
-	$("#all_pois").delegate('.send', 'click', function() {
+	$("#all_pois").delegate('#send', 'click', function() {
 		sentPointToCollection($(this).attr('data-id')); 
 	});
 	
@@ -264,7 +264,65 @@ $(function (){
 		    }
 	    });
 	}
-	$("#poi_list_show").delegate('.remove_from_collection', 'click', function() {
+	$("#poi_list_show").delegate('#remove_from_collection', 'click', function() {
 		removePointFromCollection($(this).attr('data-id')); 
+	});
+	
+	//editing a point
+	var editPoint = function(tr) {
+		tr.find('input.name').val(tr.find('span.name').html());
+		tr.find('input.lat').val(tr.find('span.lat').html());
+		tr.find('input.lng').val(tr.find('span.lng').html());
+		tr.find('input.type').val(tr.find('span.type').html());
+		tr.find('input.subtype').val(tr.find('span.subtype').html());
+		tr.addClass('edit');
+	}
+	$poi_list_show.delegate('#edit_button', 'click', function() {		
+		$tr = $(this).closest('tr');
+		editPoint($tr); 
+	});
+	$all_pois.delegate('#edit_button', 'click', function() {
+		$tr = $(this).closest('tr');
+		editPoint($tr); 
+	});
+	
+	//cancelling editing
+	$poi_list_show.delegate('.buttonC', 'click', function() {		
+		$(this).closest('tr').removeClass('edit');		
+	});
+	$all_pois.delegate('.buttonC', 'click', function() {		
+		$(this).closest('tr').removeClass('edit');		
+	});
+	
+	//save edits
+	var saveEdits = function (tr){
+		var point = {
+			poi_name: tr.find('input.name').val(),
+			poi_id: tr.find('button').attr('data-id'),
+			lat: tr.find('input.lat').val(),
+			lng: tr.find('input.lng').val(),
+			type: tr.find('input.type').val(),
+			subtype: tr.find('input.subtype').val()
+		}
+		$.ajax({
+			type: 'PUT',
+			url: 'api/pois/update',
+			data: point,
+			success:function() {
+			    updatePOIList();
+				getPOIs();
+		    },
+			error: function() {
+			    alert('error saving point');
+		    }
+		});
+	}
+	$poi_list_show.delegate('.buttonS', 'click', function() {		
+		$tr = $(this).closest('tr');
+		saveEdits($tr)
+	});
+	$all_pois.delegate('.buttonS', 'click', function() {		
+		$tr = $(this).closest('tr');
+		saveEdits($tr)
 	});
  });
