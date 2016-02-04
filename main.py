@@ -136,6 +136,13 @@ class POIs(Resource):
             for f in rfile:
                 output.append(json.loads(f))
         return output
+		
+    def saveDB(self, poi_list):
+        with open(path+'\\pois.txt',mode='w') as outfile:
+            for poi in poi_list:
+                json.dump(poi, outfile)
+                outfile.write('\n')
+        self.all_pois = self.openDB()			
 
     def addPOItoDB(self, item):
         with open(path+'\\pois.txt',mode='a') as outfile:
@@ -183,12 +190,19 @@ class POIs(Resource):
     def post(self, the_collection):
         new_poi = {}
         for field in self.poi_fields:
-            new_poi[field] = request.form.get(field)        
+            new_poi[field] = request.form.get(field)
+        new_poi["poi_id"] = int(self.all_pois[-1]["poi_id"]) + 1
         self.addPOItoDB(new_poi)
         return new_poi, 201
 		
-    def delete(self):
-        pass
+    def delete(self, the_collection):
+        output = []
+        point_id = int(request.form.get("poi_id"))        
+        for poi in self.all_pois:
+            if int(poi["poi_id"]) != point_id:
+                output.append(poi)
+        self.saveDB(output)
+        return '', 204
 
 ctp = Collection()
 

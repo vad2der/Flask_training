@@ -1,5 +1,6 @@
 $(function (){
     var $collections = $('#collections');
+	var $all_pois = $('#all_pois');
 	var pointTemplate = "<tr>"+
 		"<td>{{index}}</td>"+
 		"<td>{{poi_name}}</td>"+
@@ -7,19 +8,19 @@ $(function (){
 		"<td>{{lng}}</td>"+
 		"<td>{{type}}</td>"+
 		"<td>{{subtype}}</td>"+
-		"<th><button data-id='{{id}}'class='edit'>E</button></th>"+
-		"<th><button data-id='{{id}}'class='remove_from_collection'>R</button></th></tr>";
+		"<th><button data-id='{{poi_id}}'class='edit'>E</button></th>"+
+		"<th><button data-id='{{poi_id}}'class='remove_from_collection'>R</button></th></tr>";
 	
-	var pointTemplateAll = "<tr>"+
+	var pointTemplateAll = "<tr id='poi'>"+
 		"<td>{{index}}</td>"+
 		"<td>{{poi_name}}</td>"+
 		"<td>{{lat}}</td>"+
 		"<td>{{lng}}</td>"+
 		"<td>{{type}}</td>"+
 		"<td>{{subtype}}</td>"+
-		"<th><button data-id='{{id}}'class='edit'>E</button></th>"+
-		"<th><button data-id='{{id}}'class='remove'>D</button></th>"+
-		"<th><button data-id='{{id}}'class='send'>S</button></th></tr>";
+		"<th><button data-id={{poi_id}} class='edit'>E</button></th>"+
+		"<th><button data-id={{poi_id}} class='remove'>D</button></th>"+
+		"<th><button data-id={{poi_id}} class='send'>S</button></th></tr>";
 			
     // fill colections list
     var getCollectionNames = function() {
@@ -50,7 +51,6 @@ $(function (){
 		    "col_id": '',
 		    "poi_ids": '',
 		};
-	
 	    $.ajax({
 		    type: 'POST',
 		    url: '/api/collections/'+new_collection,
@@ -75,8 +75,8 @@ $(function (){
 		var index = 0;
 		var nextIndex = function(){
 			var newIndex = index + 1;
-			return newIndex}
-		
+			return newIndex
+		};		
 		$.ajax({  
 			type: 'GET',
 			url: '/api/pois/'+the_collection,
@@ -121,9 +121,7 @@ $(function (){
 	// get list of all (searched points)
 	var getPOIs = function() {
 		//default search criteria to be developed
-		var search_criteria = 'all'
-		var $all_pois = $('#all_pois');
-		
+		var search_criteria = 'all';
 		$.ajax({
 		    type: 'GET',
 		    url: '/api/pois/'+search_criteria,
@@ -141,6 +139,7 @@ $(function (){
 	    });
 	}
 	$(window).load(getPOIs);
+	
     // add point
     var addPoint = function() {
 	    var new_poi = {
@@ -149,7 +148,7 @@ $(function (){
 			lng: $('#lng').val(),
 			type: $('#type').val(),
 			subtype: $('#subtype').val()
-	    }
+	    };
 		if (newPOIcheck(new_poi)){
 			$.ajax({
 				type: 'POST',
@@ -157,6 +156,11 @@ $(function (){
 				data: new_poi,
 				success: function() {
 					getPOIs();
+					$('#new_poi_name').val("Enter new point name..");
+					$('#lat').val("Latitude..");
+					$('#lng').val("Longitude..");
+					$('#type').val("Type..");
+					$('#subtype').val("Subtype..");
 				},
 				error: function() {
 					alert('error adding point');
@@ -193,23 +197,69 @@ $(function (){
 	}
 		
     // delete point
-    var deletePoint = function() {
-
-	    var new_poi = {
-	        "name": $('#new_col_name'),
-	    }
-
-	    $.ajax({
+    var deletePoint = function(id) {	    
+		var the_point ={
+			poi_id: id
+		};
+		$.ajax({
 		    type: 'DELETE',
-		    url: 'api/pois'+$(this).attr('data-id'),
-		    data: new_poi,
+		    url: 'api/pois/delete',
+			data: the_point,
 		    success: function() {
-
+				getPOIs();
+				updatePOIList();
 		    },
 		    error: function() {
-			    alert('error adding point');
+			    alert('error deleting point');
 		    }
 	    });
     };
-	$('.remove').click(deletePoint); 
- })
+	$("#all_pois").delegate('.remove', 'click', function() {
+		deletePoint($(this).attr('data-id')); 
+	});
+	
+	// sending point to collection
+	var sentPointToCollection = function(id) {
+	    var the_point ={
+			poi_id: id
+		};
+		$.ajax({
+		    type: 'PUT',
+		    url: 'api/pois/update',
+			data: the_point,
+		    success: function() {
+				getPOIs();
+		    },
+		    error: function() {
+			    alert('error sending point to the collection');
+		    }
+	    });
+	}
+	$("#all_pois").delegate('.send', 'click', function() {
+		sentPointToCollection($(this).attr('data-id')); 
+	});
+	
+	// removing point from collection
+	var removePointFromCollection = function(id) {
+	    var the_point ={
+			poi_id: id
+		};
+		var the_collection = {
+		    name: $('#collections').val()
+		};
+		$.ajax({
+		    type: 'PUT',
+		    url: 'api/collections/'+the_collection.name,
+			data: the_point,
+		    success: function() {
+				getPOIs();
+		    },
+		    error: function() {
+			    alert('error removing point from the collection');
+		    }
+	    });
+	}
+	$("#poi_list_show").delegate('.remove_from_collection', 'click', function() {
+		removePointFromCollection($(this).attr('data-id')); 
+	});
+ });

@@ -1,4 +1,5 @@
-{"name": "Collection 1", "col_id": 111, "poi_ids": [9101, 9102, 9103, 9104]}
-{"name": "Collection 2", "col_id": 222, "poi_ids": [9201, 9202, 9203, 9204]}
-{"name": "Collection 3", "col_id": 333, "poi_ids": [9301, 9302, 9303, 9304]}
-{"name": "Collection 4", "col_id": 444, "poi_ids": []}
+{"poi_ids": [9101, 9102, 9103, 9104], "name": "Collection 1", "col_id": 111}
+{"poi_ids": [9201, 9202, 9203, 9204], "name": "Collection 2", "col_id": 222}
+{"poi_ids": [9301, 9302, 9303, 9304], "name": "Collection 3", "col_id": 333}
+{"poi_ids": [], "name": "Collection 4", "col_id": 444}
+{"date_updated": null, "col_id": 445, "date_created": null, "name": "aaaaa", "poi_ids": []}
