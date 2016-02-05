@@ -4,16 +4,16 @@ $(function (){
 	var $poi_list_show = $('#poi_list_show');
 	
 	var pointTemplate = "<tr><td>{{index}}</td>"+
-		"<td><span class='noedit name'>{{poi_name}}</span><input class='edit name'/></td>"+
+		"<td><span class='noedit name'>{{poi_name}}</span><input id='en' class='edit name'></input></td>"+
 		"<td><span class='noedit lat'>{{lat}}</span><input class='edit lat'/></td>"+
 		"<td><span class='noedit lng'>{{lng}}</span><input class='edit lng'/></td>"+
-		"<td><span class='noedit type'>{{type}}</span><input iclass='edit type'/></td>"+
+		"<td><span class='noedit type'>{{type}}</span><input class='edit type'/></td>"+
 		"<td><span class='noedit subtype'>{{subtype}}</span><input class='edit subtype'/></td>"+
 		"<td><button data-id='{{poi_id}}' id='edit_button' class='noedit buttonE'>Edit</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonS'>Save</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonC'>Cancel</button></td>"+
 		"<td><button data-id='{{poi_id}}' id='remove_from_collection' class='noedit'>Remove</button></td></tr>";
 	
 	var pointTemplateAll = "<tr id='poi'><td>{{index}}</td>"+
-		"<td><span class='noedit name'>{{poi_name}}</span><input id='name' class='edit name'/></td>"+
+		"<td><span class='noedit name'>{{poi_name}}</span><input type='text' id='name' class='edit name'></input></td>"+
 		"<td><span class='noedit lat'>{{lat}}</span><input id='lat' class='edit lat'/></td>"+
 		"<td><span class='noedit lng'>{{lng}}</span><input id='lng' class='edit lng'/></td>"+
 		"<td><span class='noedit type'>{{type}}</span><input id='type' class='edit type'/></td>"+
@@ -277,11 +277,11 @@ $(function (){
 		tr.find('input.subtype').val(tr.find('span.subtype').html());
 		tr.addClass('edit');
 	}
-	$poi_list_show.delegate('#edit_button', 'click', function() {		
+	$poi_list_show.delegate('.buttonE', 'click', function() {		
 		$tr = $(this).closest('tr');
 		editPoint($tr); 
 	});
-	$all_pois.delegate('#edit_button', 'click', function() {
+	$all_pois.delegate('.buttonE', 'click', function() {
 		$tr = $(this).closest('tr');
 		editPoint($tr); 
 	});

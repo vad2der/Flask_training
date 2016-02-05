@@ -42,8 +42,6 @@ class Collection(Resource):
                 item = json.loads(f)
                 if item['name'] != name['name']:                   
                    output.append(item)
-                else:
-                   print(item)
         f1 = open(path+'\\collections.txt',mode='w')
         f1.close()
         with open(path+'\\collections.txt',mode='a') as outfile:
@@ -86,7 +84,6 @@ class Collection(Resource):
     def delete_collection(self, name):
         for collection in self.poi_collection_list:
             if collection['name'] == name:
-                print (jsonify(self.poi_collection_list[collection]))
                 del self.poi_collection_list[collection]
 
     def saveCollectionToDB(self):
@@ -133,8 +130,6 @@ class Collection(Resource):
                 if collection['name'] == param:
                     self.deleteItem(collection)
             return '', 204
-        else:
-            print('no such collection')
 
 
 class POIs(Resource):
@@ -213,7 +208,6 @@ class POIs(Resource):
         if the_collection == 'update':
             for field in self.poi_fields:
                 updated_poi[field] = request.form.get(field)
-                print(str(field),": ",str(updated_poi[field]))
         updated_poi['poi_id'] = int(updated_poi['poi_id'])
         for poi in self.all_pois:
             if poi['poi_id'] == updated_poi['poi_id']:
