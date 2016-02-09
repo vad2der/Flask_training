@@ -7,7 +7,7 @@ $(function (){
 		"<td><span class='noedit name'>{{poi_name}}</span><input id='en' class='edit name'></input></td>"+
 		"<td><span class='noedit lat'>{{lat}}</span><input class='edit lat'/></td>"+
 		"<td><span class='noedit lng'>{{lng}}</span><input class='edit lng'/></td>"+
-		"<td><span class='noedit type'>{{type}}</span><input class='edit type'/></td>"+
+		"<td><span class='noedit type'>{{poi_type}}</span><input class='edit type'/></td>"+
 		"<td><span class='noedit subtype'>{{subtype}}</span><input class='edit subtype'/></td>"+
 		"<td><button data-id='{{poi_id}}' id='edit_button' class='noedit buttonE'>Edit</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonS'>Save</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonC'>Cancel</button></td>"+
 		"<td><button data-id='{{poi_id}}' id='remove_from_collection' class='noedit'>Remove</button></td></tr>";
@@ -16,7 +16,7 @@ $(function (){
 		"<td><span class='noedit name'>{{poi_name}}</span><input type='text' id='name' class='edit name'></input></td>"+
 		"<td><span class='noedit lat'>{{lat}}</span><input id='lat' class='edit lat'/></td>"+
 		"<td><span class='noedit lng'>{{lng}}</span><input id='lng' class='edit lng'/></td>"+
-		"<td><span class='noedit type'>{{type}}</span><input id='type' class='edit type'/></td>"+
+		"<td><span class='noedit type'>{{poi_type}}</span><input id='type' class='edit type'/></td>"+
 		"<td><span class='noedit subtype'>{{subtype}}</span><input id='subtype' class='edit subtype'/></td>"+
 		"<td><button data-id='{{poi_id}}' id='edit_button' class='noedit buttonE'>Edit</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonS'>Save</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonC'>Cancel</button></td>"+
 		"<td><button data-id={{poi_id}} id='remove' class='noedit'>Delete</button></td>"+
@@ -49,7 +49,7 @@ $(function (){
 	    var new_collection = {
 		    "name": $('#new_col_name').val(),
 		    "col_id": '',
-		    "poi_ids": '',
+		    "poi_ids": [],
 		};
 	    $.ajax({
 		    type: 'POST',
@@ -146,7 +146,7 @@ $(function (){
 	        poi_name: $('#new_poi_name').val(),
 			lat: $('#lat').val(),
 			lng: $('#lng').val(),
-			type: $('#type').val(),
+			poi_type: $('#poi_type').val(),
 			subtype: $('#subtype').val()
 	    };
 		if (newPOIcheck(new_poi)){
@@ -159,7 +159,7 @@ $(function (){
 					$('#new_poi_name').val("Enter new point name..");
 					$('#lat').val("Latitude..");
 					$('#lng').val("Longitude..");
-					$('#type').val("Type..");
+					$('#poi_type').val("Type..");
 					$('#subtype').val("Subtype..");
 				},
 				error: function() {
@@ -185,7 +185,7 @@ $(function (){
 			window.alert('Longitude fields is required');
 			check = false;
 		}
-		if ((new_poi.type.length == 0) || (new_poi.type == 'Type..')){
+		if ((new_poi.poi_type.length == 0) || (new_poi.poi_type == 'Type..')){
 			window.alert('Type fields is required');
 			check = false;
 		}

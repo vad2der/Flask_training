@@ -26,6 +26,7 @@ var points;
 var bounds = new google.maps.LatLngBounds();
 var markers = [];
 var initialPosition = {lat: 60.0, lng: 60.0};
+var current_marker = new google.maps.Marker();
 
 // Set initial postion first
 function getBrowserPosition(){	    
@@ -57,7 +58,7 @@ var map = new google.maps.Map(document.getElementById('map'), {
 // set markers, center, zoom
 function setMapView(point_list) {
 	points = eval(point_list);
-	
+	current_marker.setMap(null);
 	if ((typeof(points) != 'object') || (points === null) || (points.length == 0)){	
 		map.setCenter(initialPosition);
 	}
@@ -88,12 +89,24 @@ function setMarkers(map) {
 			map: map,
 			//icon: image,
 			//shape: shape,
-			title: String(point.name)
+			label: String(i+1)
 			//zIndex: String(point.type)
 		});		
 		bounds.extend(new google.maps.LatLng(parseFloat(point.lat),parseFloat(point.lng)));
 	}		
 }
+
+google.maps.event.addListener(map, 'click', function(event) {
+    current_marker.setMap(null);
+	current_marker = new google.maps.Marker({
+        position: event.latLng, 
+        map: map,
+		color: "blue"
+	});
+	var p = JSON.parse(JSON.stringify(current_marker.position));
+	$('#new_poi').find('#lat').val(p.lat);
+	$('#new_poi').find('#lng').val(p.lng);
+});
 
 $( window ).load(function() {
 	setMapView(eval([]));
