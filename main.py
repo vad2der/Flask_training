@@ -123,6 +123,8 @@ class Collection(Resource):
             new_collection_name = request.form.get('new_name_collection')
             numbers = request.form.get('poi_ids')
             updated_colection = updateCollectioninDB(old_collection_name, new_collection_name, numbers)
+        if action == "collection update":
+            pass
         return updated_collection, 201
 
     def post(self, param):

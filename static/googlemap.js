@@ -64,6 +64,12 @@ function setMapView(point_list) {
 	if ((typeof(points) != 'object') || (points === null) || (points === undefined) || (points.length == 0)){	
 		map.setCenter(initialPosition);
 		map.setZoom(9);
+		google.maps.Map.prototype.clearOverlays = function() {
+			for (var i = 0; i < markersArray.length; i++ ) {
+		markersArray[i].setMap(null);
+	}
+	markersArray.length = 0;
+}
 	}
 	else{		
 		setMarkers(map, points);

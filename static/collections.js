@@ -24,19 +24,32 @@ $(function (){
 		"<td><button data-id={{poi_id}} id='send' class='noedit'>Send</button></td>"+
 		"<td><button data-id='{{poi_id}}' id='zoom_to_point'>Zoom</button></td></tr>";
 			
+	var collectionDetailsTemplate = "<p class='colleciton'><span class='noedit name'>{{name}}</span><input type='text' class='edit name'></input>"+
+			"<button  data-id='{{col_id}}' id='edit_collection_description' class='noedit buttonE'>Edit</button><button data-id='{{col_id}}' id='save_collection_description' class='edit buttonS'>Save</button><button data-id='{{col_id}}' class='edit buttonC'>Cancel</button></p>"+
+		"<p><span class='noedit description' style='width:80%;'>{{collection_description}}</span><textarea  class='edit description' style='width:80%;'></textarea ></p>";
+	
+	var all_collections;
+	var current_collection_of_pois;
+	
     // fill colections list
     var getCollectionNames = function() {
     $.ajax({
         type: 'GET',
 	    url: '/api/collections/all',
 	    success: function(collections) {
-	    $('#collections').find('option').remove()
-	    $collections.append('<option disabled selected>..select a collection..</option>'),
+			all_collections = collections;
+			$('#collections').find('option').remove()
+			$collections.append('<option disabled selected>..select a collection..</option>'),
 			$('#zoom-button').hide(500);
 			$('#del-collection').hide(500);
+			$('#edit_collection_description').hide(500);
+			$('#save_collection_description').hide(500);
 	        $.each(collections, function (i, collection){
 	            $collections.append('<option value="' + collection.name + '">' + collection.name + '</option>')
 	        });
+			$('#collection_details').empty();
+			$('#poi_list_show').empty();
+			setMapView([]);			
         },
         error: function() {
             alert('error loading collections');
@@ -62,7 +75,6 @@ $(function (){
 			    $collections.append('<option value="' + new_collection.name + '"selected>' + new_collection.name + '</option>');
 			    $('#new_col_name').val("Enter new collection name..")
 			    updatePOIList();
-			    
 		    },
 		    error: function() {
 			    alert('error saving collection');
@@ -71,6 +83,7 @@ $(function (){
     });
  
  // change poi_list on collection click
+ // & display collection details
     var updatePOIList = function() {
 		var the_collection = $('#collections').val();
 		var $poi_list = $('#poi_list');
@@ -84,6 +97,15 @@ $(function (){
 			type: 'GET',
 			url: '/api/pois/'+the_collection,
 			success: function(pois) {
+				current_collection_of_pois = pois;
+				var current_collection = function (the_collection) {
+					for (var i=0; i < all_collections.length; i++){
+						if (all_collections[i].name = the_collection){							
+							return all_collections[i];
+						};
+					};
+				};				
+				$('#collection_details').append(Mustache.render(collectionDetailsTemplate, current_collection(the_collection)));
 				$('#poi_list_show').empty();
 				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>RemoveFromCollection</th><th>Zoom</th></tr>');
 				$.each(pois, function (i, poi){
@@ -93,7 +115,7 @@ $(function (){
 				setMapView(JSON.stringify(pois));
 				$('#zoom-button').show(500);
 				$('#del-collection').show(500);
-				
+				$('#edit_collection_description').show(500);
 			},
 			error: function() {
 				alert('error loading pois from collection');
@@ -318,7 +340,7 @@ $(function (){
 			    alert('error saving point');
 		    }
 		});
-	}
+	};
 	$poi_list_show.delegate('.buttonS', 'click', function() {		
 		$tr = $(this).closest('tr');
 		saveEdits($tr)
@@ -347,5 +369,42 @@ $(function (){
 	});
 	
 	// zoom on a collection
-	$('#collection_area').delegate('#zoom-button', 'click', updatePOIList)
+	$('#collection_area').delegate('#zoom-button', 'click', updatePOIList);
+	
+	//update collection description text and/or name
+	$cd = $('#collection_details');
+	var editCollectionDetails = function(){
+		$cd.find('input.name').val($cd.find('span.name').html());
+		$cd.find('textarea.description').val($cd.find('span.description').html());	
+		$cd.addClass('edit');
+	};	
+	$cd.delegate('#edit_collection_description', 'click', editCollectionDetails)
+	
+	// cancel edit
+	$cd.delegate('.buttonC', 'click', function(){
+		$cd.removeClass('edit')
+	});
+	
+	//save edits & update
+	$cd.delegate('.buttonS', 'click', function(){
+		var collection = {
+			name: $cd.find('input.name').val(),
+			col_id: $cd.find('button').attr('data-id'),
+			poi_ids: current_collection_of_pois.poi_ids,
+			collection_description: $cd.find('textarea.description').val(),
+			action: 'collection update'
+		};
+		$.ajax({
+			type: 'PUT',
+			url: '/api/collections/'+current_collection_of_pois.name,
+			data: collection,
+			success:function() {
+				$cd.removeClass('edit');
+			    getCollectionNames();				
+		    },
+			error: function() {
+			    alert('error saving collection');
+		    }
+		});
+	});
  });
