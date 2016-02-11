@@ -13,6 +13,15 @@ api = Api(app)
 path = path.dirname(path.abspath(__file__))
 
 
+def getApiKeys():
+    output = []
+    with open(path+'\\API_KEYS.txt',mode='r') as rfile:
+        for f in rfile:
+            output.append(json.loads(f))        
+    return output
+
+GOOGLEMAPS_KEY = getApiKeys()[0]['Google']
+	
 class Collection(Resource):
     """
     initial emualtion of db
@@ -143,10 +152,10 @@ class POIs(Resource):
         "poi_name": fields.String,
         "date_created": fields.DateTime,
         "date_updated": fields.DateTime,
-        "lat": fields.Float,
-		"lng": fields.Float,
-		"type": fields.String,
-		"subtype": fields.String,
+        "poi_lat": fields.Float,
+		"poi_lng": fields.Float,
+		"poi_type": fields.String,
+		"poi_subtype": fields.String,
         }
 
     def openDB(self):
@@ -250,7 +259,7 @@ def stage01():
 # stage02
 @app.route('/stage02')
 def stage02():    
-    return render_template('stage02.html', name='stage02')
+    return render_template('stage02.html', name='stage02', GOOGLEMAPS_KEY=GOOGLEMAPS_KEY)
 
 # map page
 @app.route('/<name>', methods=['GET', 'POST'])

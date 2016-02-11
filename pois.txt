@@ -1,14 +1,17 @@
-{"lng": 60.678538, "lat": 56.842912, "subtype": "Rock", "poi_name": "Kamennie palatki", "poi_id": 9101, "type": "Natural"}
-{"lng": 60.692927, "lat": 56.847335, "subtype": "Waterbody", "poi_name": "Shartash ozero", "poi_id": 9102, "type": "Natural"}
-{"lng": 60.759548, "lat": 56.85564, "subtype": "Rock", "poi_name": "One more point", "poi_id": 9103, "type": "Natural"}
-{"lng": 60.726486, "lat": 56.859641, "subtype": "Beach", "poi_name": "Local Beach", "poi_id": 9104, "type": "Natural"}
-{"lng": -114.070241, "lat": 51.05552, "subtype": "Park", "poi_name": "Prince`s Island", "poi_id": 9201, "type": "Natural"}
-{"lng": -114.111217, "lat": 51.105876, "subtype": "Park", "poi_name": "Nose Hill", "poi_id": 9202, "type": "Natural"}
-{"lng": -114.219045, "lat": 51.100791, "subtype": "Park", "poi_name": "Baker Park", "poi_id": 9203, "type": "Natural"}
-{"lng": -114.215201, "lat": 51.08295, "subtype": "Winter Sport Activity Park", "poi_name": "Canada Olimpic Park", "poi_id": 9204, "type": "Recreation"}
-{"lng": 3.174488, "lat": 42.262312, "subtype": "Beach", "poi_name": "Roses City Beach", "poi_id": 9301, "type": "Natural"}
-{"lng": 3.170584, "lat": 42.26558, "subtype": "Museum", "poi_name": "Roses Citadel", "poi_id": 9302, "type": "Historical"}
-{"lng": 3.182242, "lat": 42.246668, "subtype": "Museum", "poi_name": "Trinity Castle", "poi_id": 9303, "type": "Historical"}
-{"lng": 3.197926, "lat": 42.256068, "subtype": "Dolmen", "poi_name": "Dolmen Path (Start)", "poi_id": 9304, "type": "Historical"}
-{"lng": "110", "lat": "50", "date_created": null, "date_updated": null, "subtype": "st", "poi_name": "testPoint", "type": "t", "poi_id": 2}
-{"lng": "100", "poi_id": 3, "date_created": null, "date_updated": null, "subtype": "st", "poi_name": "TTTTTT", "lat": "56", "type": "t"}
+{"poi_lng": 60.678538, "poi_id": 9101, "poi_type": "Natural", "poi_name": "Kamennie papoi_latki", "poi_lat": 56.842912, "poi_subtype": "Rock"}
+{"poi_lng": 60.692927, "poi_id": 9102, "poi_type": "Natural", "poi_name": "Shartash ozero", "poi_lat": 56.847335, "poi_subtype": "Waterbody"}
+{"poi_lng": 60.759548, "poi_id": 9103, "poi_type": "Natural", "poi_name": "One more point", "poi_lat": 56.85564, "poi_subtype": "Rock"}
+{"poi_lng": 60.726486, "poi_id": 9104, "poi_type": "Natural", "poi_name": "Local Beach", "poi_lat": 56.859641, "poi_subtype": "Beach"}
+{"poi_lng": -114.070241, "poi_id": 9201, "poi_type": "Natural", "poi_name": "Prince`s Island", "poi_lat": 51.05552, "poi_subtype": "Park"}
+{"poi_lng": -114.111217, "poi_id": 9202, "poi_type": "Natural", "poi_name": "Nose Hill", "poi_lat": 51.105876, "poi_subtype": "Park"}
+{"poi_lng": -114.219045, "poi_id": 9203, "poi_type": "Natural", "poi_name": "Baker Park", "poi_lat": 51.100791, "poi_subtype": "Park"}
+{"poi_lng": -114.215201, "poi_id": 9204, "poi_type": "Recreation", "poi_name": "Canada Olimpic Park", "poi_lat": 51.08295, "poi_subtype": "Winter Sport Activity Park"}
+{"poi_lng": 3.174488, "poi_id": 9301, "poi_type": "Natural", "poi_name": "Roses City Beach", "poi_lat": 42.262312, "poi_subtype": "Beach"}
+{"poi_lng": 3.170584, "poi_id": 9302, "poi_type": "Historical", "poi_name": "Roses Citadel", "poi_lat": 42.26558, "poi_subtype": "Museum"}
+{"poi_lng": 3.182242, "poi_id": 9303, "poi_type": "Historical", "poi_name": "Trinity Castle", "poi_lat": 42.246668, "poi_subtype": "Museum"}
+{"poi_lng": 3.197926, "poi_id": 9304, "poi_type": "Historical", "poi_name": "Dolmen Path (Start)", "poi_lat": 42.256068, "poi_subtype": "Dolmen"}
+{"poi_lng": "110", "poi_id": 2, "date_created": null, "poi_type": "t", "poi_name": "testPoint", "date_updated": null, "poi_lat": "50", "poi_subtype": "st"}
+{"poi_lng": "100", "poi_id": 3, "date_created": null, "poi_type": "t", "poi_name": "TTTTTT", "date_updated": null, "poi_lat": "56", "poi_subtype": "st"}
+{"type": null, "poi_lng": "60.748558044433594", "poi_id": 4, "date_created": null, "poi_name": "test1", "date_updated": null, "poi_lat": "56.84499098147219", "poi_subtype": "st"}
+{"poi_lng": "60.68229675292969", "poi_id": 5, "date_created": null, "poi_type": "aaaaa", "poi_name": "newpoint", "date_updated": null, "poi_lat": "56.84029655531648", "poi_subtype": "Testpoi_subtype"}
+{"poi_lng": "60.72074890136719", "poi_id": 6, "date_created": null, "poi_type": "nnnnn", "poi_name": "krier", "date_updated": null, "poi_lat": "56.83193902004127", "poi_subtype": "sssssssssttttttttt"}

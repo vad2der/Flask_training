@@ -4,23 +4,25 @@ $(function (){
 	var $poi_list_show = $('#poi_list_show');
 	
 	var pointTemplate = "<tr><td>{{index}}</td>"+
-		"<td><span class='noedit name'>{{poi_name}}</span><input id='en' class='edit name'></input></td>"+
-		"<td><span class='noedit lat'>{{lat}}</span><input class='edit lat'/></td>"+
-		"<td><span class='noedit lng'>{{lng}}</span><input class='edit lng'/></td>"+
+		"<td><span class='noedit name'>{{poi_name}}</span><input class='edit name'></input></td>"+
+		"<td><span class='noedit lat'>{{poi_lat}}</span><input class='edit lat'/></td>"+
+		"<td><span class='noedit lng'>{{poi_lng}}</span><input class='edit lng'/></td>"+
 		"<td><span class='noedit type'>{{poi_type}}</span><input class='edit type'/></td>"+
-		"<td><span class='noedit subtype'>{{subtype}}</span><input class='edit subtype'/></td>"+
+		"<td><span class='noedit subtype'>{{poi_subtype}}</span><input class='edit subtype'/></td>"+
 		"<td><button data-id='{{poi_id}}' id='edit_button' class='noedit buttonE'>Edit</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonS'>Save</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonC'>Cancel</button></td>"+
-		"<td><button data-id='{{poi_id}}' id='remove_from_collection' class='noedit'>Remove</button></td></tr>";
+		"<td><button data-id='{{poi_id}}' id='remove_from_collection' class='noedit'>Remove</button></td>"+
+		"<td><button data-id='{{poi_id}}' id='zoom_to_point'>Zoom</button></td></tr>";
 	
 	var pointTemplateAll = "<tr id='poi'><td>{{index}}</td>"+
-		"<td><span class='noedit name'>{{poi_name}}</span><input type='text' id='name' class='edit name'></input></td>"+
-		"<td><span class='noedit lat'>{{lat}}</span><input id='lat' class='edit lat'/></td>"+
-		"<td><span class='noedit lng'>{{lng}}</span><input id='lng' class='edit lng'/></td>"+
-		"<td><span class='noedit type'>{{poi_type}}</span><input id='type' class='edit type'/></td>"+
-		"<td><span class='noedit subtype'>{{subtype}}</span><input id='subtype' class='edit subtype'/></td>"+
+		"<td><span class='noedit name'>{{poi_name}}</span><input type='text' class='edit name'></input></td>"+
+		"<td><span class='noedit lat'>{{poi_lat}}</span><input class='edit lat'/></td>"+
+		"<td><span class='noedit lng'>{{poi_lng}}</span><input class='edit lng'/></td>"+
+		"<td><span class='noedit type'>{{poi_type}}</span><input class='edit type'/></td>"+
+		"<td><span class='noedit subtype'>{{poi_subtype}}</span><input class='edit subtype'/></td>"+
 		"<td><button data-id='{{poi_id}}' id='edit_button' class='noedit buttonE'>Edit</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonS'>Save</button><button data-id='{{poi_id}}' id='edit_button' class='edit buttonC'>Cancel</button></td>"+
 		"<td><button data-id={{poi_id}} id='remove' class='noedit'>Delete</button></td>"+
-		"<td><button data-id={{poi_id}} id='send' class='noedit'>Send</button></td></tr>";
+		"<td><button data-id={{poi_id}} id='send' class='noedit'>Send</button></td>"+
+		"<td><button data-id='{{poi_id}}' id='zoom_to_point'>Zoom</button></td></tr>";
 			
     // fill colections list
     var getCollectionNames = function() {
@@ -30,6 +32,7 @@ $(function (){
 	    success: function(collections) {
 	    $('#collections').find('option').remove()
 	    $collections.append('<option disabled selected>..select a collection..</option>'),
+			$('#zoom-button').hide(500);
 			$('#del-collection').hide(500);
 	        $.each(collections, function (i, collection){
 	            $collections.append('<option value="' + collection.name + '">' + collection.name + '</option>')
@@ -81,15 +84,14 @@ $(function (){
 			type: 'GET',
 			url: '/api/pois/'+the_collection,
 			success: function(pois) {
-				//$('#poi_list').empty();
-				//$poi_list.append(JSON.stringify(pois));
 				$('#poi_list_show').empty();
-				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>RemoveFromCollection</th></tr>');
+				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>RemoveFromCollection</th><th>Zoom</th></tr>');
 				$.each(pois, function (i, poi){
 					poi.index = i+1;
 					$poi_list_show.append(Mustache.render(pointTemplate, poi));
 				});
 				setMapView(JSON.stringify(pois));
+				$('#zoom-button').show(500);
 				$('#del-collection').show(500);
 				
 			},
@@ -127,7 +129,7 @@ $(function (){
 		    url: '/api/pois/'+search_criteria,
 		    success: function(pois) {
 				$('#all_pois').empty();
-				$all_pois.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>Delete</th><th>SendToColelction</th></tr>');
+				$all_pois.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>Delete</th><th>SendToColelction</th><th>Zoom</th></tr>');
 				$.each(pois, function (i, poi){
 					poi.index = i+1;
 					$all_pois.append(Mustache.render(pointTemplateAll, poi));
@@ -144,10 +146,10 @@ $(function (){
     var addPoint = function() {
 	    var new_poi = {
 	        poi_name: $('#new_poi_name').val(),
-			lat: $('#lat').val(),
-			lng: $('#lng').val(),
+			poi_lat: $('#lat').val(),
+			poi_lng: $('#lng').val(),
 			poi_type: $('#poi_type').val(),
-			subtype: $('#subtype').val()
+			poi_subtype: $('#subtype').val()
 	    };
 		if (newPOIcheck(new_poi)){
 			$.ajax({
@@ -299,10 +301,10 @@ $(function (){
 		var point = {
 			poi_name: tr.find('input.name').val(),
 			poi_id: tr.find('button').attr('data-id'),
-			lat: tr.find('input.lat').val(),
-			lng: tr.find('input.lng').val(),
-			type: tr.find('input.type').val(),
-			subtype: tr.find('input.subtype').val()
+			poi_lat: tr.find('input.lat').val(),
+			poi_lng: tr.find('input.lng').val(),
+			poi_type: tr.find('input.type').val(),
+			poi_subtype: tr.find('input.subtype').val()
 		}
 		$.ajax({
 			type: 'PUT',

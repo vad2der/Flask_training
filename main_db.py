@@ -18,6 +18,15 @@ api = Api(app)
 path = path.dirname(path.abspath(__file__))
 
 
+def getApiKeys():
+    output = []
+    with open(path+'\\API_KEYS.txt',mode='r') as rfile:
+        for f in rfile:
+            output.append(json.loads(f))        
+    return output
+
+GOOGLEMAPS_KEY = getApiKeys()[0]['Google']
+
 class POI_db(db.Model):    
     __tablename__ = 'poi'
     poi_id = db.Column(db.Integer, unique=True, primary_key=True)
@@ -90,6 +99,7 @@ class Collection_api(Resource):
             return all_col, 200
         else:
             collection = Collection_db.query.filter_by(name=param)
+            print(len(collection))
             return collection, 200
 				
     def put(self, param):
@@ -149,6 +159,7 @@ class POI_api(Resource):
     def delete(self, the_collection):
         return '', 204
 
+		
 # index page
 @app.route('/')
 def index():
@@ -162,7 +173,7 @@ def stage01():
 # stage02
 @app.route('/stage02')
 def stage02():    
-    return render_template('stage02.html', name='stage02')
+    return render_template('stage02.html', name='stage02', GOOGLEMAPS_KEY=GOOGLEMAPS_KEY)
 
 # map page
 @app.route('/<name>', methods=['GET', 'POST'])

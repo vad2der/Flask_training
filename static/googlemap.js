@@ -1,4 +1,3 @@
-
 var styleArray = [
 	{
 		featureType: "all",
@@ -44,26 +43,30 @@ function assignPosition(position){
 }
 
 getBrowserPosition();
+var map;
 
-// initialize the map
-var map = new google.maps.Map(document.getElementById('map'), {
-	styles: styleArray,
-	center: {
-		lat: initialPosition.lat,
-		lng: initialPosition.lng,
-	},
-	zoom: 8	
-});
+function initMap(){
+	map = new google.maps.Map(document.getElementById('map'), {
+		styles: styleArray,
+		center: {
+			lat: initialPosition.lat,
+			lng: initialPosition.lng,
+		},
+		zoom: 9	
+	});
+};
+initMap();
 
 // set markers, center, zoom
 function setMapView(point_list) {
 	points = eval(point_list);
 	current_marker.setMap(null);
-	if ((typeof(points) != 'object') || (points === null) || (points.length == 0)){	
+	if ((typeof(points) != 'object') || (points === null) || (points === undefined) || (points.length == 0)){	
 		map.setCenter(initialPosition);
+		map.setZoom(9);
 	}
 	else{		
-		setMarkers(map);
+		setMarkers(map, points);
 		map.fitBounds(bounds);
 		map.panToBounds(bounds);
 	}
@@ -79,22 +82,23 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 // Data for the markers consisting of a name, a LatLng and a zIndex for the
 // order in which these markers should display on top of each other.
 
-function setMarkers(map) {
+function setMarkers(map, points) {
   // Adds markers to the map.
 	bounds = new google.maps.LatLngBounds();
 	for (var i = 0; i < points.length; i++) {
 		var point = points[i];
 		var marker = new google.maps.Marker({
-			position: {lat: parseFloat(point.lat), lng: parseFloat(point.lng)},
+			position: {lat: parseFloat(point.poi_lat), lng: parseFloat(point.poi_lng)},
 			map: map,
 			//icon: image,
 			//shape: shape,
 			label: String(i+1)
 			//zIndex: String(point.type)
 		});		
-		bounds.extend(new google.maps.LatLng(parseFloat(point.lat),parseFloat(point.lng)));
+		bounds.extend(new google.maps.LatLng(parseFloat(point.poi_lat),parseFloat(point.poi_lng)));
 	}		
 }
+
 
 google.maps.event.addListener(map, 'click', function(event) {
     current_marker.setMap(null);
@@ -108,6 +112,6 @@ google.maps.event.addListener(map, 'click', function(event) {
 	$('#new_poi').find('#lng').val(p.lng);
 });
 
-$( window ).load(function() {
+$('body').on('load', '#map', function() {
 	setMapView(eval([]));
 });
