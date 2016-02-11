@@ -20,7 +20,12 @@ def getApiKeys():
             output.append(json.loads(f))        
     return output
 
-GOOGLEMAPS_KEY = getApiKeys()[0]['Google']
+try:
+    GOOGLEMAPS_KEY = getApiKeys()[0]['Google']
+except IOError as e:
+    print('\nno file for keys found\n', e)
+finally:
+    GOOGLEMAPS_KEY = ''
 	
 class Collection(Resource):
     """
