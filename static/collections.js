@@ -327,4 +327,25 @@ $(function (){
 		$tr = $(this).closest('tr');
 		saveEdits($tr)
 	});
+	
+	// zoom on a point
+	$poi_list_show.delegate('#zoom_to_point', 'click', function() {		
+		$tr = $(this).closest('tr');
+		var point = {
+			poi_lat: $tr.find('.lat').html(),
+			poi_lng: $tr.find('.lng').html()
+		};
+		zoomOnPoint(point);
+	});
+	$all_pois.delegate('#zoom_to_point', 'click', function() {		
+		$tr = $(this).closest('tr');
+		var point = {
+			poi_lat: $tr.find('.lat').html(),
+			poi_lng: $tr.find('.lng').html()
+		};
+		zoomOnPoint(point);
+	});
+	
+	// zoom on a collection
+	$('#collection_area').delegate('#zoom-button', 'click', updatePOIList)
  });

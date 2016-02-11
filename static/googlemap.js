@@ -70,7 +70,15 @@ function setMapView(point_list) {
 		map.fitBounds(bounds);
 		map.panToBounds(bounds);
 	}
-}
+};
+
+// zoom an a point
+function zoomOnPoint (point) {
+	point = eval(point);
+	var position = {lat: parseFloat(point.poi_lat), lng: parseFloat(point.poi_lng)};
+	map.setCenter(position);
+	map.setZoom(20);
+};
 
 // helpers...
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
@@ -97,7 +105,7 @@ function setMarkers(map, points) {
 		});		
 		bounds.extend(new google.maps.LatLng(parseFloat(point.poi_lat),parseFloat(point.poi_lng)));
 	}		
-}
+};
 
 
 google.maps.event.addListener(map, 'click', function(event) {
