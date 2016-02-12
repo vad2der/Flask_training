@@ -123,14 +123,15 @@ class Collection(Resource):
                     collection["poi_ids"].remove(poi_id)
                     updated_collection = collection
             self.saveCollectionToDB()
-        if action == "rename":
-            old_collection_name = request.form.get('old_name_collection')
-            new_collection_name = request.form.get('new_name_collection')
-            numbers = request.form.get('poi_ids')
-            updated_colection = updateCollectioninDB(old_collection_name, new_collection_name, numbers)
         if action == "collection update":
-            pass
-        return updated_collection, 201
+            new_collection_name = request.form.get('name')
+            numbers = request.form.get('poi_ids')
+			id = request.form.get('col_id')
+			description = request.form.get('collection_description')
+			self.delete_collection(param)
+			new_col = {"name": new_collection_name, "poi_ids": numbers, "col_id": id, "collection_description": description}
+			self.addItemtoDB(new_col)
+        return new_col, 201
 
     def post(self, param):
         new_collection = {}
