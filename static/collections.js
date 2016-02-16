@@ -64,8 +64,8 @@ $(function (){
     
 	    var new_collection = {
 		    "name": $('#new_col_name').val(),
-		    "col_id": '',
-		    "poi_ids": [],
+		    "col_id": "",
+		    "poi_ids": "[]",
 		};
 	    $.ajax({
 		    type: 'POST',
