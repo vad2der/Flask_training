@@ -20,9 +20,13 @@ path = path.dirname(path.abspath(__file__))
 
 def getApiKeys():
     output = []
-    with open(path+'\\API_KEYS.txt',mode='r') as rfile:
-        for f in rfile:
-            output.append(json.loads(f))        
+    try:
+        with open(path+'\\API_KEYS.txt',mode='r') as rfile:
+            for f in rfile:
+                output.append(json.loads(f))
+    except Exception as e:
+        print ("File not found")
+        output.append({"Google": ""})
     return output
 
 GOOGLEMAPS_KEY = getApiKeys()[0]['Google']
@@ -45,7 +49,7 @@ class POI_db(db.Model):
         self.poi_id = self.next_id()
 		
     def __repr__(self):
-        return jsonify(json_list=[i.serialize for i in POI_db.query.all()])
+        return [i.serialize for i in POI_db.query.all()]
 		
     @property
     def serialize(self):
@@ -88,12 +92,12 @@ class POI_Collection_db(db.Model):
         self.collection_id = collection_id
 
     def __repr__(self):
-        return jsonify({"collection_id": self.collection_id,
-                        "poi_id"       : self.poi_id})
+        return {"collection_id": self.collection_id,
+                "poi_id"       : self.poi_id}
     
     def __str__(self):
-        return jsonify({"collection_id": self.collection_id,
-                        "poi_id"       : self.poi_id})
+        return {"collection_id": self.collection_id,
+                "poi_id"       : self.poi_id}
 
 		
 class Collection_db(db.Model):    
@@ -113,10 +117,10 @@ class Collection_db(db.Model):
             self.collection_description = ""
 
     def __str__(self):
-        return jsonify(json_list=[i.serialize for i in Collection_db.query.all()])
+        return [i.serialize for i in Collection_db.query.all()]
 			
     def __repr__(self):
-        return jsonify(json_list=[i.serialize for i in pois.query.filter(collection_id==self.collection_id)])
+        return [i.serialize for i in pois.query.filter(collection_id==self.collection_id)]
 		
     @property
     def serialize(self):
@@ -173,7 +177,7 @@ class Collection_api(Resource):
                       "collection_description": collection.collection_description,
                       "poi_ids": poi_ids}
             print (output)
-            return jsonify(output), 200
+            return output, 200
 
     @marshal_with(poi_col_fields)
     def put(self, param):
@@ -237,7 +241,7 @@ class POI_api(Resource):
                     d[pf] = poi[pf]
                 output.append(d)
             print (output)
-            return jsonify(output), 200
+            return output, 200
         else:
             return [], 200
 
