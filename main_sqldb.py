@@ -151,7 +151,7 @@ class Collection_db(db.Model):
 poi_col_fields = {
         "collection_id": fields.Integer,
         "collection_name": fields.String,
-        "poi_ids": fields.List(fields.Nested(fields.Integer)),
+        "poi_ids": fields.List(fields.Integer),
 		"collection_description": fields.String
         }
 
@@ -169,14 +169,14 @@ class Collection_api(Resource):
         elif param in [collection_name for collection_name, in db.session.query(Collection_db.collection_name).all()]:
             collection = db.session.query(Collection_db).filter(Collection_db.collection_name==param).first()
             the_collection_id, = db.session.query(Collection_db.collection_id).filter(Collection_db.collection_name==param).first()
-            print ("collection id: ", the_collection_id)
+            #print ("collection id: ", the_collection_id)
             poi_ids = [id for id, in db.session.query(POI_Collection_db.poi_id).filter(POI_Collection_db.collection_id==the_collection_id)]
             #print (poi_ids)
             output = {"collection_id": collection.collection_id,
                       "collection_name": collection.collection_name,
                       "collection_description": collection.collection_description,
                       "poi_ids": poi_ids}
-            print (output)
+            #print (output)
             return output, 200
 
     @marshal_with(poi_col_fields)
@@ -193,6 +193,9 @@ class Collection_api(Resource):
                                       "collection_description": request.form.get('collection_description')}            
             updated_collection = db.session.query(Collection_db).filter(Collection_db.collection_id==request.form.get('collection_id'))\
                                                                 .update(the_collection_details)
+            db.session.commit()
+        elif request.form.get("action") == 'remove':
+            db.session.query(POI_Collection_db).filter(POI_Collection_db.collection_id==the_collection_id, POI_Collection_db.poi_id==request.form.get('poi_id')).delete()
             db.session.commit()
         return updated_collection, 201
 
@@ -226,11 +229,11 @@ class POI_api(Resource):
         if the_collection == 'all':            
             return POI_db.query.all()        
         elif the_collection in [collection_name for collection_name, in db.session.query(Collection_db.collection_name).all()]:
-            print (the_collection)
-            print ([collection_name for collection_name, in db.session.query(Collection_db.collection_name).all()])
+            #print (the_collection)
+            #print ([collection_name for collection_name, in db.session.query(Collection_db.collection_name).all()])
             the_collection_id = db.session.query(Collection_db.collection_id).filter(Collection_db.collection_name==the_collection).scalar()
             poi_ids = [id for id, in db.session.query(POI_Collection_db.poi_id).filter(POI_Collection_db.collection_id==the_collection_id)]
-            print ('ids in the collecction ', poi_ids)
+            #print ('ids in the collecction ', poi_ids)
             pois = [poi.__dict__ for poi in db.session.query(POI_db).filter(POI_db.poi_id.in_(poi_ids)).all()]
             if len(pois) == 0:
                 return [], 200
@@ -240,7 +243,7 @@ class POI_api(Resource):
                 for pf in poi_fields:
                     d[pf] = poi[pf]
                 output.append(d)
-            print (output)
+            #print (output)
             return output, 200
         else:
             return [], 200

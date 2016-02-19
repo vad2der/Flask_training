@@ -81,7 +81,31 @@ $(function (){
 		    }
 	    });
     });
- 
+
+	var updatePOICollectioView = function (current_collection) {
+		// updating collection details on click
+		var $poi_list_show = $('#poi_list_show');
+		var the_collection = $('#collections').val();
+		$.ajax({
+			type: 'GET',
+			url: '/api/pois/'+the_collection,
+			//data: current_collection.poi_ids,
+			success: function(pois) {
+				current_collection_of_pois = pois;
+				$poi_list_show.empty();
+				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>RemoveFromCollection</th><th>Zoom</th></tr>');
+				$.each(pois, function (i, poi){
+					poi.index = i+1;
+					$poi_list_show.append(Mustache.render(pointTemplate, eval(poi)));
+				});
+				setMapView(JSON.stringify(pois));
+			},
+			error: function() {
+				alert('error loading pois from collection');
+			}
+		});
+	};
+	
  // change poi_list on collection click
  // & display collection details
     var updatePOIList = function() {
@@ -100,7 +124,6 @@ $(function (){
 				//alert(JSON.stringify(current_collection));
 				//current_collection = eval(current_collection)
 				$('#collection_details').empty()
-				alert(JSON.stringify(current_collection));
 				$('#collection_details').append(Mustache.render(collectionDetailsTemplate, current_collection));
 				$('#zoom-button').show(500);
 				$('#del-collection').show(500);
@@ -114,29 +137,6 @@ $(function (){
 	};
 	$('#collections').change(updatePOIList);
 
-	var updatePOICollectioView = function (current_collection) {
-		// updating collection details on click
-		$.ajax({  
-			type: 'GET',
-			url: '/api/pois/'+current_collection.collection_name,
-			data: current_collection.poi_ids,
-			success: function(pois) {
-				current_collection_of_pois = pois;
-				var current_collection = function (the_collection) {					
-					$('#poi_list_show').empty();
-					$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>RemoveFromCollection</th><th>Zoom</th></tr>');
-					$.each(pois, function (i, poi){
-						poi.index = i+1;
-							$poi_list_show.append(Mustache.render(pointTemplate, poi));
-					});
-				}
-				setMapView(JSON.stringify(pois));
-			},
-			error: function() {
-				alert('error loading pois from collection');
-			}
-		});
-	}
 	
 	// delete collection
 	 var deleteCollection = function() {
@@ -282,17 +282,17 @@ $(function (){
 	});
 	
 	// removing point from collection
-	var removePointFromCollection = function(id) {
+	var removePointFromCollection = function(poi_id) {
 	    var the_point ={
-			poi_id: id,
+			poi_id: poi_id,
 			action: "remove"
 		};
 		var the_collection = {
-		    name: $('#collections').val()
+		    collection_name: $('#collections').val()
 		};
 		$.ajax({
 		    type: 'PUT',
-		    url: 'api/collections/'+the_collection.name,
+		    url: 'api/collections/'+the_collection.collection_name,
 			data: the_point,
 		    success: function() {
 				updatePOIList();
