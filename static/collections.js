@@ -24,14 +24,14 @@ $(function (){
 		"<td><button data-id={{poi_id}} id='send' class='noedit'>Send</button></td>"+
 		"<td><button data-id='{{poi_id}}' id='zoom_to_point'>Zoom</button></td></tr>";
 			
-	var collectionDetailsTemplate = "<p class='colleciton'><span class='noedit name'>{{name}}</span><input type='text' class='edit name'></input>"+
-			"<button  data-id='{{col_id}}' id='edit_collection_description' class='noedit buttonE'>Edit</button><button data-id='{{col_id}}' id='save_collection_description' class='edit buttonS'>Save</button><button data-id='{{col_id}}' class='edit buttonC'>Cancel</button></p>"+
+	var collectionDetailsTemplate = "<p class='colleciton'><span class='noedit name'>{{collection_name}}</span><input type='text' class='edit name'></input>"+
+			"<button  data-id='{{collection_id}}' id='edit_collection_description' class='noedit buttonE'>Edit</button><button data-id='{{collection_id}}' id='save_collection_description' class='edit buttonS'>Save</button><button data-id='{{collection_id}}' class='edit buttonC'>Cancel</button></p>"+
 		"<p><span class='noedit description' style='width:80%;'>{{collection_description}}</span><textarea  class='edit description' style='width:80%;'></textarea ></p>";
 	
 	var all_collections;
 	var current_collection_of_pois;
 	
-    // fill colections list
+    // fill collections list
     var getCollectionNames = function() {
     $.ajax({
         type: 'GET',
@@ -45,7 +45,7 @@ $(function (){
 			$('#edit_collection_description').hide(500);
 			$('#save_collection_description').hide(500);
 	        $.each(collections, function (i, collection){
-	            $collections.append('<option value="' + collection.name + '">' + collection.name + '</option>')
+	            $collections.append('<option value="' + collection.collection_name + '">' + collection.collection_name + '</option>')
 	        });
 			$('#collection_details').empty();
 			$('#poi_list_show').empty();
@@ -63,16 +63,16 @@ $(function (){
     $('#add-collection').on('click', function() {
     
 	    var new_collection = {
-		    "name": $('#new_col_name').val(),
-		    "col_id": "",
-		    "poi_ids": "[]",
+		    "collection_name": $('#new_col_name').val(),
+		    "collection_id": '',
+		    "poi_ids": [],
 		};
 	    $.ajax({
 		    type: 'POST',
-		    url: '/api/collections/'+new_collection,
+		    url: '/api/collections/'+new_collection.collection_name,
 		    data: new_collection,
 		    success: function(newCollection) {
-			    $collections.append('<option value="' + new_collection.name + '"selected>' + new_collection.name + '</option>');
+			    $collections.append('<option value="' + new_collection.collection_name + '"selected>' + new_collection.collection_name + '</option>');
 			    $('#new_col_name').val("Enter new collection name..")
 			    updatePOIList();
 		    },
@@ -92,33 +92,41 @@ $(function (){
 		var nextIndex = function(){
 			var newIndex = index + 1;
 			return newIndex
-		};		
+		};
 		$.ajax({  
 			type: 'GET',
-			url: '/api/pois/'+the_collection,
-			success: function(pois) {
-				current_collection_of_pois = pois;
-				var current_collection = function (the_collection) {
-					for (var i=0; i < all_collections.length; i++){
-						if (all_collections[i].name = the_collection){							
-							return all_collections[i];
-						};
-					};
-				};				
-				$('#collection_details').append(Mustache.render(collectionDetailsTemplate, current_collection(the_collection)));
-				$('#poi_list_show').empty();
-				$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>RemoveFromCollection</th><th>Zoom</th></tr>');
-				$.each(pois, function (i, poi){
-					poi.index = i+1;
-					$poi_list_show.append(Mustache.render(pointTemplate, poi));
-				});
-				setMapView(JSON.stringify(pois));
+			url: '/api/collections/'+the_collection,
+			success: function(current_collection) {
+				//alert(JSON.stringify(current_collection));
+				$('#collection_details').empty()
+				$('#collection_details').append(Mustache.render(collectionDetailsTemplate, current_collection));
 				$('#zoom-button').show(500);
 				$('#del-collection').show(500);
 				$('#edit_collection_description').show(500);
+				// updating collection details on click
+				$.ajax({  
+					type: 'GET',
+					url: '/api/pois/'+the_collection,
+					data: current_collection.poi_ids,
+					success: function(pois) {
+						current_collection_of_pois = pois;
+						var current_collection = function (the_collection) {					
+							$('#poi_list_show').empty();
+							$poi_list_show.append('<tr><th>#</th><th>Name</th><th>Latitude</th><th>Longitude</th><th>Type</th><th>SubType</th><th>Edit</th><th>RemoveFromCollection</th><th>Zoom</th></tr>');
+							$.each(pois, function (i, poi){
+								poi.index = i+1;
+								$poi_list_show.append(Mustache.render(pointTemplate, poi));
+							});
+						}
+						setMapView(JSON.stringify(pois));
+					},
+					error: function() {
+						alert('error loading pois from collection');
+					}
+				});
 			},
 			error: function() {
-				alert('error loading pois from collection');
+				alert('error loading collection details');
 			}
 		});
 	};
@@ -127,11 +135,11 @@ $(function (){
 	// delete collection
 	 var deleteCollection = function() {
 	    var del_collection = {
-		    name: $('#collections').val()
+		    collection_name: $('#collections').val()
 		};		
 	    $.ajax({
 		    type: 'DELETE',
-		    url: '/api/collections/'+del_collection.name,
+		    url: '/api/collections/'+del_collection.collection_name,
 		    success: function() {
 				getCollectionNames();
 		    },
@@ -201,11 +209,11 @@ $(function (){
 			window.alert('Name fields is required');
 			check = false;
 		}
-		if ((new_poi.lat.length == 0) || (new_poi.lat == 'Latitude..') || (isNaN(parseFloat(new_poi.lat)))){
+		if ((new_poi.poi_lat.length == 0) || (new_poi.poi_lat == 'Latitude..') || (isNaN(parseFloat(new_poi.poi_lat)))){
 			window.alert('Latitude fields is required');
 			check = false;
 		}
-		if ((new_poi.lng.length == 0) || (new_poi.lng == 'Latitude..') || (isNaN(parseFloat(new_poi.lng)))){
+		if ((new_poi.poi_lng.length == 0) || (new_poi.poi_lng == 'Latitude..') || (isNaN(parseFloat(new_poi.poi_lng)))){
 			window.alert('Longitude fields is required');
 			check = false;
 		}
@@ -213,7 +221,7 @@ $(function (){
 			window.alert('Type fields is required');
 			check = false;
 		}
-		if ((new_poi.subtype.length == 0) || (new_poi.subtype == 'Subtype..')){
+		if ((new_poi.poi_subtype.length == 0) || (new_poi.poi_subtype == 'Subtype..')){
 			window.alert('Subtype fields is required');
 			check = false;
 		}
@@ -385,18 +393,18 @@ $(function (){
 		$cd.removeClass('edit')
 	});
 	
-	//save edits & update
+	//save edits & update collection
 	$cd.delegate('.buttonS', 'click', function(){
 		var collection = {
-			name: $cd.find('input.name').val(),
-			col_id: $cd.find('button').attr('data-id'),
+			collection_name: $cd.find('input.name').val(),
+			collection_id: $cd.find('button').attr('data-id'),
 			poi_ids: current_collection_of_pois.poi_ids,
 			collection_description: $cd.find('textarea.description').val(),
 			action: 'collection update'
 		};
 		$.ajax({
 			type: 'PUT',
-			url: '/api/collections/'+current_collection_of_pois.name,
+			url: '/api/collections/'+current_collection_of_pois.collection_name,
 			data: collection,
 			success:function() {
 				$cd.removeClass('edit');

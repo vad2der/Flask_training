@@ -1,5 +1,0 @@
-{"col_id": 111, "poi_ids": [9101, 9102, 9103, 9104], "name": "Collection 1", "collection_description":"A description for collection # 1"}
-{"col_id": 222, "poi_ids": [9201, 9202, 9203, 9204], "name": "Collection 2", "collection_description":"A description for collection # 2"}
-{"col_id": 333, "poi_ids": [9301, 9302, 9303, 9304], "name": "Collection 3", "collection_description":"A description for collection # 3"}
-{"col_id": 444, "poi_ids": [], "name": "Collection 4", "collection_description":"A description for collection # 4"}
-{"col_id": 445, "date_created": null, "poi_ids": [9104, 9102, 9101, 3], "date_updated": null, "name": "aaaaa", "collection_description":"A description for collection aaaaa"}
