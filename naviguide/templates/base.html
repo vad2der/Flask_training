@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<title>Map view page</title>
+<head>
+  <script src="http://maps.googleapis.com/maps/api/js?key={{GOOGLEMAPS_KEY}}"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"></link>
+</head>
+<body>
+  <h1>Map view - {{ name }}</h1>
+  
+  <!-- collections -->
+  {% block collection %}
+  {% endblock collection %}
+ 
+  <!-- pois -->
+  
+  <div id="poi_list" hidden></div>
+  
+  <table id="poi_list_show">
+
+  </table>
+
+  <div id="test" hidden></div>
+
+  <!-- map -->
+  <h2>Map</h2>
+  <div id="map" style="width:700px;height:500px;"></div>
+  
+  <!-- add a point -->
+  <p id="new_poi">
+    <input id="new_poi_name" value="Enter new point name.." onfocus="if (this.value == 'Enter new point name..') this.value=''"  />
+    <input id="lat"  value="Latitude.." onfocus="if (this.value == 'Latitude..') this.value=''"  />
+    <input id="lng" value="Longitude.." onfocus="if (this.value == 'Longitude..') this.value=''"  />
+    <input id="poi_type" value="Type.." onfocus="if (this.value == 'Type..') this.value=''"  />
+    <input id="subtype" value="Subtype.." onfocus="if (this.value == 'Subtype..') this.value=''"  />
+    <button id="add-poi">Add</button>
+  </p>
+  <!-- all points or searched ones -->  
+  <h2>All points</h2>
+  <table id="all_pois"></table>
+  
+</body>
+    <script type="text/javascript" src="{{ url_for('static', filename='googlemap.js') }}"></script>
+  <script src="{{ url_for('static', filename='collections.js') }}"></script>
+
+
+</html>
