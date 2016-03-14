@@ -1,5 +1,5 @@
 """
-training on Flask
+Flask application using sql db through SQLAlchemy
 """
 import json
 from flask import Flask, request, render_template, flash, url_for, jsonify
@@ -31,7 +31,13 @@ def getApiKeys():
 
 GOOGLEMAPS_KEY = getApiKeys()[0]['Google']
 
-class POI_db(db.Model):    
+
+# Model classes to declare schema of the DB
+class POI_db(db.Model):
+    """
+    Schema to declare DB of POIs
+    serialization and id (unnecessary, as field is unique) increment incorporated
+    """
     __tablename__ = 'poi'
     poi_id = db.Column(db.Integer, unique=True, primary_key=True)
     poi_name = db.Column(db.String(50))
@@ -47,10 +53,10 @@ class POI_db(db.Model):
         self.poi_type = poi_type
         self.poi_subtype = poi_subtype
         self.poi_id = self.next_id()
-		
+
     def __repr__(self):
         return [i.serialize for i in POI_db.query.all()]
-		
+
     @property
     def serialize(self):
         """Return object data in easily serializeable format"""
@@ -61,17 +67,17 @@ class POI_db(db.Model):
            "poi_type" : self.poi_type,
            "poi_subtype" : self.poi_subtype
            # This is an example how to deal with Many2Many relations
-           #'many2many'  : self.serialize_many2many
+           # 'many2many'  : self.serialize_many2many
         }
-	   
+
     @property
     def serialize_many2many(self):
         """
         Return object's relations in easily serializeable format.
         NB! Calls many2many's serialize property.
         """
-        return [ item.serialize for item in self.many2many]
-	   
+        return [item.serialize for item in self.many2many]
+
     def next_id(self):
         try:
             qry = (db.session.query(db.func.max(POI_db.poi_id)).scalar())
@@ -81,8 +87,11 @@ class POI_db(db.Model):
             qry = 0
         return qry + 1
    
-	   
+
 class POI_Collection_db(db.Model):
+    """
+    Table to represent many-to-many relationship  between Collections and POIs
+    """
     __tablename__ = 'POI_Collection'
     poi_id = db.Column(db.Integer, primary_key=True, unique=False)
     collection_id = db.Column(db.Integer, primary_key=True, unique=False)
@@ -99,8 +108,12 @@ class POI_Collection_db(db.Model):
         return {"collection_id": self.collection_id,
                 "poi_id"       : self.poi_id}
 
-		
-class Collection_db(db.Model):    
+
+class Collection_db(db.Model):
+    """
+    Schema to declare DB of Collections
+    serialization and id (unnecessary, as field is unique) increment incorporated
+    """
     __tablename__ = 'collection'
     collection_id = db.Column(db.Integer, unique=True, primary_key=True)
     collection_name = db.Column(db.String(50))
@@ -118,19 +131,18 @@ class Collection_db(db.Model):
 
     def __str__(self):
         return [i.serialize for i in Collection_db.query.all()]
-			
+
     def __repr__(self):
         return [i.serialize for i in pois.query.filter(collection_id==self.collection_id)]
-		
+
     @property
     def serialize(self):
         """Return object data in easily serializeable format"""
         return {"collection_name"       : self.collection_name,
                 "collection_id"         : self.collection_id,
-		        "collection_description": self.collection_description,
-                "poi_ids"               : self.serialize_many2many
-        }
-	   
+                "collection_description": self.collection_description,
+                "poi_ids"               : self.serialize_many2many}
+
     @property
     def serialize_many2many(self):
        """
@@ -138,7 +150,7 @@ class Collection_db(db.Model):
        NB! Calls many2many's serialize property.
        """
        return [ item.serialize for item in self.many2many]
-	   
+
     def next_id(self):
         try:
             qry = (db.session.query(db.func.max(Collection_db.collection_id)).scalar())
@@ -148,39 +160,54 @@ class Collection_db(db.Model):
             qry = 0
         return qry + 1
 
+
+
+"""
+REST core
+"""
+# fields of Collection object
 poi_col_fields = {
         "collection_id": fields.Integer,
         "collection_name": fields.String,
         "poi_ids": fields.List(fields.Integer),
-		"collection_description": fields.String
-        }
+        "collection_description": fields.String}
 
-"""
-REST classes
-"""		
+
 class Collection_api(Resource):
-    def __init__(self):      
+    """
+    CRUD methods for Collections
+    """
+    def __init__(self):
         pass
     
     @marshal_with(poi_col_fields)
     def get(self, param):
+        """
+        :param: 'all' or collection name
+        :return: Collection or Collections list
+        """
         if param == 'all':	
             return Collection_db.query.all(), 200
         elif param in [collection_name for collection_name, in db.session.query(Collection_db.collection_name).all()]:
             collection = db.session.query(Collection_db).filter(Collection_db.collection_name==param).first()
             the_collection_id, = db.session.query(Collection_db.collection_id).filter(Collection_db.collection_name==param).first()
-            #print ("collection id: ", the_collection_id)
+            # print ("collection id: ", the_collection_id)
             poi_ids = [id for id, in db.session.query(POI_Collection_db.poi_id).filter(POI_Collection_db.collection_id==the_collection_id)]
-            #print (poi_ids)
+            # print (poi_ids)
             output = {"collection_id": collection.collection_id,
                       "collection_name": collection.collection_name,
                       "collection_description": collection.collection_description,
                       "poi_ids": poi_ids}
-            #print (output)
+            # print (output)
             return output, 200
 
     @marshal_with(poi_col_fields)
     def put(self, param):
+        """
+        Method to update a Collection (actions = [send, remove, collection update])
+        :param: is not used here
+        :return: updated collection
+        """
         the_collection_id = db.session.query(Collection_db.collection_id).filter(Collection_db.collection_name==param).scalar()
         the_collection = db.session.query(Collection_db).filter(Collection_db.collection_name==param)
         updated_collection = the_collection
@@ -201,39 +228,61 @@ class Collection_api(Resource):
 
     @marshal_with(poi_col_fields)
     def post(self, param):
+        """
+        Method to post a new Collection
+        :param: is not used here
+        :return: newly crated collection
+        """
         new_collection = Collection_db(collection_name=request.form.get("collection_name"))
         db.session.add(new_collection)
         db.session.commit()
         return new_collection, 201
  
     def delete(self, param):
-        db.session.query(Collection_db).filter(Collection_db.collection_name==param).delete()
+        """
+        Method to delete a Collection from db
+        :param: as a name of Collection to delete
+        :return:
+        """
+        db.session.query(Collection_db).filter(Collection_db.collection_name == param).delete()
         db.session.commit()
         return '', 204
 
+# fields of POI object
 poi_fields = {
         "poi_id": fields.Integer,
         "poi_name": fields.String,
         "poi_lat": fields.Float,
-		"poi_lng": fields.Float,
-		"poi_type": fields.String,
-		"poi_subtype": fields.String,
-        }
+        "poi_lng": fields.Float,
+        "poi_type": fields.String,
+        "poi_subtype": fields.String,}
+
 
 class POI_api(Resource):
+    """
+    CRUD methods for POI (Point Of Interest)
+    """
     def __init__(self):
         pass
 
     @marshal_with(poi_fields)
     def get(self, the_collection):
+        """
+        Method to present a POI or list of POIs for the front end
+        :param the_collection: collection name or 'all'
+        :return: OI or list of POIs
+        """
         if the_collection == 'all':            
             return POI_db.query.all()        
-        elif the_collection in [collection_name for collection_name, in db.session.query(Collection_db.collection_name).all()]:
-            #print (the_collection)
-            #print ([collection_name for collection_name, in db.session.query(Collection_db.collection_name).all()])
-            the_collection_id = db.session.query(Collection_db.collection_id).filter(Collection_db.collection_name==the_collection).scalar()
-            poi_ids = [id for id, in db.session.query(POI_Collection_db.poi_id).filter(POI_Collection_db.collection_id==the_collection_id)]
-            #print ('ids in the collecction ', poi_ids)
+        elif the_collection in [collection_name for collection_name,
+                                in db.session.query(Collection_db.collection_name).all()]:
+            # print (the_collection)
+            # print ([collection_name for collection_name, in db.session.query(Collection_db.collection_name).all()])
+            the_collection_id = db.session.query(Collection_db.collection_id)\
+                                  .filter(Collection_db.collection_name == the_collection).scalar()
+            poi_ids = [id for id, in db.session.query(POI_Collection_db.poi_id)
+                                       .filter(POI_Collection_db.collection_id == the_collection_id)]
+            # print ('ids in the collecction ', poi_ids)
             pois = [poi.__dict__ for poi in db.session.query(POI_db).filter(POI_db.poi_id.in_(poi_ids)).all()]
             if len(pois) == 0:
                 return [], 200
@@ -243,40 +292,55 @@ class POI_api(Resource):
                 for pf in poi_fields:
                     d[pf] = poi[pf]
                 output.append(d)
-            #print (output)
+            # print (output)
             return output, 200
         else:
             return [], 200
 
     def put(self,the_collection):
+        """
+        Method to modify a POI
+        :param the_collection: not in use here
+        :return: updated POI
+        """
         the_poi_details = {"poi_name": request.form.get('poi_name'),
                            "poi_lat": request.form.get('poi_lat'),
                            "poi_lng": request.form.get('poi_lng'),
                            "poi_type": request.form.get('poi_type'),
                            "poi_subtype": request.form.get('poi_subtype')}
-        the_poi = db.session.query(POI_db).filter(POI_db.poi_id==request.form.get('poi_id')).update(the_poi_details)
+        the_poi = db.session.query(POI_db).filter(POI_db.poi_id == request.form.get('poi_id')).update(the_poi_details)
         db.session.commit()
         return the_poi, 201
 
     @marshal_with(poi_fields)
     def post(self, the_collection):
+        """
+        Method to insert a new POI
+        :param the_collection: not in use here
+        :return: newly created POI
+        """
         new_poi = POI_db(poi_name = request.form.get('poi_name'),
                          poi_lat = request.form.get('poi_lat'),
                          poi_lng = request.form.get('poi_lng'),
                          poi_type = request.form.get('poi_type'),
                          poi_subtype = request.form.get('poi_subtype'))
-        #print (new_poi)
+        # print (new_poi)
         db.session.add(new_poi)
         db.session.commit()
         return new_poi, 201
-		
+
     def delete(self, the_collection):
-        db.session.query(POI_db).filter(POI_db.poi_id==request.form.get('poi_id')).delete()
+        """
+        Method to delete a POI from db
+        :param the_collection:
+        :return:
+        """
+        db.session.query(POI_db).filter(POI_db.poi_id == request.form.get('poi_id')).delete()
         db.session.commit()
         return '', 204
 
 db.create_all()
-		
+
 # index page
 @app.route('/')
 def index():
@@ -299,15 +363,9 @@ def map(name):
         return render_template('todo.html', name=name)
     if name == "create_all":
         db.create_all()
-    try:
-        poi_list = getPOIlist()		
-        return render_template('map_view.html', name=name, poi_collection_list=[], poi_list=[])
-    except Exception as e:
-        return render_template('map_view.html', name=name, poi_collection_list=[])
 
 api.add_resource(Collection_api, '/api/collections/<param>')
 api.add_resource(POI_api, '/api/pois/<the_collection>')
-
 
 if __name__ == "__main__":
     db.create_all()
